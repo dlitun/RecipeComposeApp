@@ -1,5 +1,6 @@
 package com.example.recipecomposeapp.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -62,8 +63,8 @@ fun RecipesAppTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+      colorScheme = colorScheme,
+      typography = recipesAppTypography,
+      content = content
     )
 }
