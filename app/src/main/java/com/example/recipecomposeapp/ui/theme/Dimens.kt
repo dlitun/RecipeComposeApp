@@ -28,4 +28,6 @@ object Dimens {
 
     // Slider
     val SliderTrackHeight = 4.dp
+
+    val HeaderHeight = 224.dp
 }
