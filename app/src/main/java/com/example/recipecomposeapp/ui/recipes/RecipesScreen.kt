@@ -1,6 +1,6 @@
 package com.example.recipecomposeapp.ui.recipes
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,37 +10,43 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.ScreenHeader
+import com.example.recipecomposeapp.core.ui.theme.Dimens
+import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 
 @Composable
 fun RecipesScreen(
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize()
     ) {
         ScreenHeader(
             painter = painterResource(id = R.drawable.placeholder_header),
-            contentDescription = "Recipes header",
+            contentDescription = "Заголовок экрана рецептов",
             text = "Рецепты"
         )
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(Dimens.Space16),
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Скоро здесь будет список рецептов",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RecipesScreenPreview() {
+    RecipesAppTheme {
+        RecipesScreen()
     }
 }
