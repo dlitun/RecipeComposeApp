@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.ui.theme
+package com.example.recipecomposeapp.core.ui.theme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -51,7 +51,10 @@ val recipesAppTypography = Typography(
 @Composable
 fun TypographyPreview() {
     RecipesAppTheme {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text("displayLarge - Заголовки экранов", style = MaterialTheme.typography.displayLarge)
             Text("titleMedium - Карточки", style = MaterialTheme.typography.titleMedium)
             Text("bodyMedium - Основной текст", style = MaterialTheme.typography.bodyMedium)

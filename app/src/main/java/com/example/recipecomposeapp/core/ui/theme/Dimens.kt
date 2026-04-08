@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.ui.theme
+package com.example.recipecomposeapp.core.ui.theme
 
 import androidx.compose.ui.unit.dp
 
