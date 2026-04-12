@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.data.model
+package com.example.recipecomposeapp.data.dto
 
 data class IngredientDto(
     val quantity: String,
