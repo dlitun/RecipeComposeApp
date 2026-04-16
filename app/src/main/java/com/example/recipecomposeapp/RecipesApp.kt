@@ -40,7 +40,7 @@ fun RecipesApp() {
                 .padding(innerPadding)
         ) {
             when (currentScreen) {
-                ScreenId.CATEGORIES -> CategoriesScreen()
+                ScreenId.CATEGORIES -> CategoriesScreen(onCategoryClick = {})
                 ScreenId.FAVORITES -> FavoritesScreen()
             }
         }
