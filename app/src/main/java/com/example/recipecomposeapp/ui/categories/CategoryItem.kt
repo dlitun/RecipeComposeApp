@@ -10,6 +10,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +31,14 @@ fun CategoryItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val imageRequest = remember(context, category.imageUrl) {
+        ImageRequest.Builder(context)
+            .data(category.imageUrl)
+            .crossfade(true)
+            .build()
+    }
+
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -39,10 +48,7 @@ fun CategoryItem(
     ) {
         Column {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(category.imageUrl)
-                    .crossfade(true)
-                    .build(),
+                model = imageRequest,
                 contentDescription = category.title,
                 placeholder = painterResource(id = R.drawable.placeholder_header),
                 error = painterResource(id = R.drawable.placeholder_header),
@@ -96,5 +102,3 @@ private fun CategoryItemPreview() {
         )
     }
 }
-
-
