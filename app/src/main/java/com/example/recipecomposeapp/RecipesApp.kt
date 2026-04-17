@@ -14,12 +14,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.ui.categories.CategoriesScreen
 import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
+import com.example.recipecomposeapp.ui.recipes.RecipesScreen
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 
 @Composable
 fun RecipesApp() {
     var currentScreen by remember {
         mutableStateOf(ScreenId.CATEGORIES)
+    }
+    var selectedCategoryId by remember {
+        mutableStateOf<Int?>(null)
+    }
+    var selectedCategoryTitle by remember {
+        mutableStateOf("")
+    }
+    val onCategorySelected: (Int, String) -> Unit = { categoryId, categoryTitle ->
+        selectedCategoryId = categoryId
+        selectedCategoryTitle = categoryTitle
+        currentScreen = ScreenId.RECIPES
     }
 
     Scaffold(
@@ -40,8 +52,20 @@ fun RecipesApp() {
                 .padding(innerPadding)
         ) {
             when (currentScreen) {
-                ScreenId.CATEGORIES -> CategoriesScreen(onCategoryClick = {})
+                ScreenId.CATEGORIES -> CategoriesScreen(onCategoryClick = onCategorySelected)
                 ScreenId.FAVORITES -> FavoritesScreen()
+                ScreenId.RECIPES -> {
+                    val categoryId = selectedCategoryId
+                    if (categoryId != null) {
+                        RecipesScreen(
+                            categoryId = categoryId,
+                            categoryTitle = selectedCategoryTitle,
+                            onRecipeClick = {}
+                        )
+                    } else {
+                        CategoriesScreen(onCategoryClick = onCategorySelected)
+                    }
+                }
             }
         }
     }

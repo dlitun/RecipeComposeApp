@@ -149,6 +149,47 @@ private val burgerRecipes = listOf(
     )
 )
 
+private val dessertRecipes = listOf(
+    RecipeDto(
+        id = 100,
+        title = "Шоколадный брауни",
+        ingredients = listOf(
+            IngredientDto(
+                quantity = "200",
+                unitOfMeasure = "г",
+                description = "темный шоколад"
+            ),
+            IngredientDto(
+                quantity = "120",
+                unitOfMeasure = "г",
+                description = "сливочное масло"
+            ),
+            IngredientDto(
+                quantity = "2",
+                unitOfMeasure = "шт",
+                description = "яйца"
+            ),
+            IngredientDto(
+                quantity = "100",
+                unitOfMeasure = "г",
+                description = "сахар"
+            ),
+            IngredientDto(
+                quantity = "80",
+                unitOfMeasure = "г",
+                description = "пшеничная мука"
+            )
+        ),
+        method = listOf(
+            "1. Растопите шоколад и масло на водяной бане.",
+            "2. Вмешайте сахар и яйца до однородности.",
+            "3. Добавьте муку, аккуратно перемешайте.",
+            "4. Выпекайте при 180 C около 25 минут."
+        ),
+        imageUrl = "dessert.png"
+    )
+)
+
 class RecipesRepositoryStub {
 
     fun getCategories(): List<CategoryDto> {
@@ -158,6 +199,11 @@ class RecipesRepositoryStub {
     fun getRecipesByCategoryId(categoryId: Int): List<RecipeDto> {
         return when (categoryId) {
             0 -> burgerRecipes
+            1 -> dessertRecipes
+            2 -> emptyList()
+            3 -> emptyList()
+            4 -> emptyList()
+            5 -> emptyList()
             else -> emptyList()
         }
     }
