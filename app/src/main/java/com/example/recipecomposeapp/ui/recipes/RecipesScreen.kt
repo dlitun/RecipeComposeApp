@@ -87,7 +87,9 @@ fun RecipesScreen(
 
             else -> {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
                     contentPadding = PaddingValues(Dimens.Space16),
                     verticalArrangement = Arrangement.spacedBy(Dimens.Space8)
                 ) {
