@@ -4,14 +4,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.ui.categories.CategoriesScreen
+import com.example.recipecomposeapp.ui.details.RecipeDetailsScreen
 import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
 import com.example.recipecomposeapp.ui.recipes.RecipesScreen
+import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -74,8 +77,32 @@ fun RecipesApp() {
                     RecipesScreen(
                         categoryId = categoryId,
                         categoryTitle = Destination.Recipes.decodeTitle(encodedCategoryTitle),
-                        onRecipeClick = {}
+                        onRecipeClick = { recipeId, recipe ->
+                            navController.currentBackStackEntry
+                                ?.savedStateHandle
+                                ?.set(Destination.RecipeDetails.KEY_RECIPE_OBJECT, recipe)
+
+                            navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
+                        }
                     )
+                }
+
+                composable(
+                    route = Destination.RecipeDetails.route,
+                    arguments = listOf(
+                        navArgument("recipeId") { type = NavType.IntType }
+                    )
+                ) { backStackEntry ->
+                    val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+                    val recipe = navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<RecipeUiModel>(Destination.RecipeDetails.KEY_RECIPE_OBJECT)
+
+                    if (recipe != null && recipe.id == recipeId) {
+                        RecipeDetailsScreen(recipe = recipe)
+                    } else {
+                        Text(text = "Рецепт не найден")
+                    }
                 }
             }
         }

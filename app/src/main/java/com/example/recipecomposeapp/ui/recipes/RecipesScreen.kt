@@ -34,7 +34,7 @@ import com.example.recipecomposeapp.ui.recipes.model.toUiModel
 fun RecipesScreen(
     categoryId: Int,
     categoryTitle: String,
-    onRecipeClick: (Int) -> Unit,
+    onRecipeClick: (Int, RecipeUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val repository = remember { RecipesRepositoryStub() }
@@ -115,7 +115,7 @@ private fun RecipesScreenPreview() {
         RecipesScreen(
             categoryId = 0,
             categoryTitle = "Бургеры",
-            onRecipeClick = {}
+            onRecipeClick = { _, _ -> }
         )
     }
 }

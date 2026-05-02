@@ -18,5 +18,14 @@ sealed class Destination(val route: String) {
             return Uri.decode(encodedTitle)
         }
     }
+
+    data object RecipeDetails : Destination("recipe/{recipeId}") {
+        const val KEY_RECIPE_OBJECT = "recipe_object"
+        private const val PATH = "recipe"
+
+        fun createRoute(recipeId: Int): String {
+            return "$PATH/$recipeId"
+        }
+    }
 }
 
