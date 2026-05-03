@@ -29,7 +29,7 @@ import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
 @Composable
 fun RecipeItem(
     recipe: RecipeUiModel,
-    onClick: (Int, RecipeUiModel) -> Unit,
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -41,7 +41,7 @@ fun RecipeItem(
     }
 
     Card(
-        onClick = { onClick(recipe.id, recipe) },
+        onClick = { onClick(recipe.id) },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.CornerLarge),
         elevation = CardDefaults.cardElevation(defaultElevation = Dimens.ElevationMedium),
@@ -87,7 +87,7 @@ private fun RecipeItemPreview() {
                 method = listOf("Смешать ингредиенты", "Обжарить котлеты"),
                 isFavorite = false
             ),
-            onClick = { _, _ -> }
+            onClick = { }
         )
     }
 }

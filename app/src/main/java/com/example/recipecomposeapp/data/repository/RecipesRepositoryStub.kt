@@ -207,4 +207,8 @@ class RecipesRepositoryStub {
             else -> emptyList()
         }
     }
+
+    fun getRecipeById(recipeId: Int): RecipeDto? {
+        return (burgerRecipes + dessertRecipes).firstOrNull { recipe -> recipe.id == recipeId }
+    }
 }

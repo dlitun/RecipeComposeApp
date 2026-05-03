@@ -6,15 +6,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
+import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
 import com.example.recipecomposeapp.ui.categories.CategoriesScreen
 import com.example.recipecomposeapp.ui.details.RecipeDetailsScreen
 import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
 import com.example.recipecomposeapp.ui.recipes.RecipesScreen
-import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
+import com.example.recipecomposeapp.ui.recipes.model.toUiModel
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -25,6 +27,7 @@ import androidx.navigation.navArgument
 @Composable
 fun RecipesApp() {
     val navController = rememberNavController()
+    val repository = remember { RecipesRepositoryStub() }
 
     Scaffold(
         bottomBar = {
@@ -77,11 +80,7 @@ fun RecipesApp() {
                     RecipesScreen(
                         categoryId = categoryId,
                         categoryTitle = Destination.Recipes.decodeTitle(encodedCategoryTitle),
-                        onRecipeClick = { recipeId, recipe ->
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set(Destination.RecipeDetails.KEY_RECIPE_OBJECT, recipe)
-
+                        onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }
                     )
@@ -94,11 +93,9 @@ fun RecipesApp() {
                     )
                 ) { backStackEntry ->
                     val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: return@composable
-                    val recipe = navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.get<RecipeUiModel>(Destination.RecipeDetails.KEY_RECIPE_OBJECT)
+                    val recipe = repository.getRecipeById(recipeId)?.toUiModel()
 
-                    if (recipe != null && recipe.id == recipeId) {
+                    if (recipe != null) {
                         RecipeDetailsScreen(recipe = recipe)
                     } else {
                         Text(text = "Рецепт не найден")
