@@ -138,7 +138,7 @@ fun RecipeDetailsScreen(
             } else {
                 recipe.method.forEachIndexed { index, step ->
                     Text(
-                        text = "${index + 1}. ${normalizeStep(step)}",
+                        text = "${index + 1}. $step",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.fillMaxWidth()
@@ -179,9 +179,6 @@ private fun formatScaledAmount(amount: Double): String {
         .replace('.', ',')
 }
 
-private fun normalizeStep(step: String): String {
-    return step.replace(Regex("^\\s*\\d+[.)]?\\s*"), "")
-}
 
 @Preview(showBackground = true)
 @Composable
