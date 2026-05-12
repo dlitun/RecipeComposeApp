@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +26,8 @@ fun ScreenHeader(
     painter: Painter,
     contentDescription: String,
     text: String,
+    showShareButton: Boolean = false,
+    onShareClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -54,6 +57,17 @@ fun ScreenHeader(
                     vertical = Dimens.Space8
                 )
             )
+        }
+
+        if (showShareButton && onShareClick != null) {
+            TextButton(
+                onClick = onShareClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(Dimens.Space16)
+            ) {
+                Text(text = "Поделиться")
+            }
         }
     }
 }
