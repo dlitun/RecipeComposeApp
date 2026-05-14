@@ -1,11 +1,14 @@
 package com.example.recipecomposeapp
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,9 +26,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.delay
 
 @Composable
-fun RecipesApp() {
+fun RecipesApp(deepLinkIntent: Intent? = null) {
     val navController = rememberNavController()
     val repository = remember { RecipesRepositoryStub() }
 
@@ -46,10 +50,35 @@ fun RecipesApp() {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            NavHost(
+            AppNavHost(
                 navController = navController,
-                startDestination = Destination.Categories.route
-            ) {
+                repository = repository,
+                deepLinkIntent = deepLinkIntent
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppNavHost(
+    navController: androidx.navigation.NavHostController,
+    repository: RecipesRepositoryStub,
+    deepLinkIntent: Intent?
+) {
+    LaunchedEffect(deepLinkIntent) {
+        val uri = deepLinkIntent?.data ?: return@LaunchedEffect
+        val recipeId = parseRecipeIdFromDeepLink(uri) ?: return@LaunchedEffect
+
+        delay(100)
+        navController.navigate(Destination.RecipeDetails.createRoute(recipeId)) {
+            launchSingleTop = true
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = Destination.Categories.route
+    ) {
                 composable(route = Destination.Categories.route) {
                     CategoriesScreen(
                         onCategoryClick = { categoryId, categoryTitle ->
@@ -89,10 +118,12 @@ fun RecipesApp() {
                 composable(
                     route = Destination.RecipeDetails.route,
                     arguments = listOf(
-                        navArgument("recipeId") { type = NavType.IntType }
+                        navArgument(Destination.RecipeDetails.PARAM_RECIPE_ID) { type = NavType.IntType }
                     )
                 ) { backStackEntry ->
-                    val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+                    val recipeId = backStackEntry.arguments
+                        ?.getInt(Destination.RecipeDetails.PARAM_RECIPE_ID)
+                        ?: return@composable
                     val recipe = repository.getRecipeById(recipeId)?.toUiModel()
 
                     if (recipe != null) {
@@ -102,7 +133,32 @@ fun RecipesApp() {
                     }
                 }
             }
+}
+
+private fun parseRecipeIdFromDeepLink(uri: Uri): Int? {
+    val deepLinkHost = Uri.parse(Destination.RecipeDetails.DEEP_LINK_BASE_URL).host
+
+    return when (uri.scheme) {
+        Destination.RecipeDetails.DEEP_LINK_SCHEME -> {
+            if (uri.host == "recipe" && uri.pathSegments.isNotEmpty()) {
+                uri.pathSegments[0].toIntOrNull()
+            } else {
+                null
+            }
         }
+
+        "https", "http" -> {
+            if (uri.host == deepLinkHost &&
+                uri.pathSegments.size >= 2 &&
+                uri.pathSegments[0] == "recipe"
+            ) {
+                uri.pathSegments[1].toIntOrNull()
+            } else {
+                null
+            }
+        }
+
+        else -> null
     }
 }
 

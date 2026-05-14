@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.recipecomposeapp.R
+import com.example.recipecomposeapp.core.shareRecipe
 import com.example.recipecomposeapp.core.ui.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
@@ -68,7 +69,9 @@ fun RecipeDetailsScreen(
         ScreenHeader(
             painter = headerPainter,
             contentDescription = recipe.title,
-            text = recipe.title
+            text = recipe.title,
+            showShareButton = true,
+            onShareClick = { shareRecipe(context, recipe.id, recipe.title) }
         )
 
         Column(
