@@ -7,6 +7,7 @@ object Dimens {
     // Spacing
     val Space4 = 4.dp
     val Space8 = 8.dp
+    val Space10 = 10.dp
     val Space16 = 16.dp
     val Space24 = 24.dp
     val Space32 = 32.dp
@@ -20,14 +21,9 @@ object Dimens {
     val ElevationSmall = 2.dp
     val ElevationMedium = 4.dp
 
-    // Icons
+    // Component sizes
     val IconMedium = 24.dp
-
-    // Buttons
     val ButtonHeight = 48.dp
-
-    // Slider
     val SliderTrackHeight = 4.dp
-
     val HeaderHeight = 224.dp
 }
