@@ -41,6 +41,8 @@ private const val MAX_PORTIONS = 12f
 @Composable
 fun RecipeDetailsScreen(
     recipe: RecipeUiModel,
+    isFavorite: Boolean,
+    onFavoriteToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -53,7 +55,6 @@ fun RecipeDetailsScreen(
         error = painterResource(id = R.drawable.placeholder_header)
     )
 
-    var isFavorite by rememberSaveable { mutableStateOf(recipe.isFavorite) }
     var currentPortions by rememberSaveable { mutableStateOf(DEFAULT_PORTIONS) }
     val scaledIngredients = remember(recipe.ingredients, currentPortions) {
         scaleIngredients(
@@ -75,7 +76,7 @@ fun RecipeDetailsScreen(
             showShareButton = true,
             showFavoriteButton = true,
             isFavorite = isFavorite,
-            onFavoriteToggle = { isFavorite = !isFavorite }
+            onFavoriteToggle = onFavoriteToggle
         ) { shareRecipe(context, recipe.id, recipe.title) }
 
         Column(
@@ -205,7 +206,9 @@ private fun RecipeDetailsScreenPreview() {
                 ),
                 method = listOf("Сформировать котлеты", "Обжарить"),
                 isFavorite = false
-            )
+            ),
+            isFavorite = false,
+            onFavoriteToggle = {}
         )
     }
 }

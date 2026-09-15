@@ -9,7 +9,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
@@ -127,7 +131,15 @@ private fun AppNavHost(
                     val recipe = repository.getRecipeById(recipeId)?.toUiModel()
 
                     if (recipe != null) {
-                        RecipeDetailsScreen(recipe = recipe)
+                        var isFavorite by rememberSaveable(recipeId) {
+                            mutableStateOf(recipe.isFavorite)
+                        }
+
+                        RecipeDetailsScreen(
+                            recipe = recipe,
+                            isFavorite = isFavorite,
+                            onFavoriteToggle = { isFavorite = !isFavorite }
+                        )
                     } else {
                         Text(text = "Рецепт не найден")
                     }
