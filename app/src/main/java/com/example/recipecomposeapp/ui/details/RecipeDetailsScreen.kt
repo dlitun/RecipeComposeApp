@@ -46,11 +46,14 @@ fun RecipeDetailsScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val headerPainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(context)
+    val imageRequest = remember(context, recipe.imageUrl) {
+        ImageRequest.Builder(context)
             .data(recipe.imageUrl)
             .crossfade(true)
-            .build(),
+            .build()
+    }
+    val headerPainter = rememberAsyncImagePainter(
+        model = imageRequest,
         placeholder = painterResource(id = R.drawable.placeholder_header),
         error = painterResource(id = R.drawable.placeholder_header)
     )
