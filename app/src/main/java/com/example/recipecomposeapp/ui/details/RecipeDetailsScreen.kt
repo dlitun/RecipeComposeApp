@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,7 +53,8 @@ fun RecipeDetailsScreen(
         error = painterResource(id = R.drawable.placeholder_header)
     )
 
-    var currentPortions by remember { mutableStateOf(DEFAULT_PORTIONS) }
+    var isFavorite by rememberSaveable { mutableStateOf(recipe.isFavorite) }
+    var currentPortions by rememberSaveable { mutableStateOf(DEFAULT_PORTIONS) }
     val scaledIngredients = remember(recipe.ingredients, currentPortions) {
         scaleIngredients(
             ingredients = recipe.ingredients,
@@ -70,7 +72,10 @@ fun RecipeDetailsScreen(
             painter = headerPainter,
             contentDescription = recipe.title,
             text = recipe.title,
-            showShareButton = true
+            showShareButton = true,
+            showFavoriteButton = true,
+            isFavorite = isFavorite,
+            onFavoriteToggle = { isFavorite = !isFavorite }
         ) { shareRecipe(context, recipe.id, recipe.title) }
 
         Column(
