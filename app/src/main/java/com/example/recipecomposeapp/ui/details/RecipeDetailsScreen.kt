@@ -70,9 +70,8 @@ fun RecipeDetailsScreen(
             painter = headerPainter,
             contentDescription = recipe.title,
             text = recipe.title,
-            showShareButton = true,
-            onShareClick = { shareRecipe(context, recipe.id, recipe.title) }
-        )
+            showShareButton = true
+        ) { shareRecipe(context, recipe.id, recipe.title) }
 
         Column(
             modifier = Modifier

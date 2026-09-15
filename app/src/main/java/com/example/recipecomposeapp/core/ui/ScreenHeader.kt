@@ -13,11 +13,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 
@@ -26,9 +26,9 @@ fun ScreenHeader(
     painter: Painter,
     contentDescription: String,
     text: String,
+    modifier: Modifier = Modifier,
     showShareButton: Boolean = false,
     onShareClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
@@ -46,17 +46,15 @@ fun ScreenHeader(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(Dimens.Space16),
-            tonalElevation = Dimens.Space4,
+            color = MaterialTheme.colorScheme.background,
             shape = MaterialTheme.shapes.medium
         ) {
             Text(
-                text = text,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(
-                    horizontal = Dimens.Space16,
-                    vertical = Dimens.Space8
+                text = text.uppercase(),
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(Dimens.Space10)
                 )
-            )
         }
 
         if (showShareButton && onShareClick != null) {
@@ -77,8 +75,8 @@ fun ScreenHeader(
 private fun ScreenHeaderPreview() {
     RecipesAppTheme {
         ScreenHeader(
-            painter = ColorPainter(Color(0xFF9AA0A6)),
-            contentDescription = "Preview header",
+            painter = painterResource(id = R.drawable.placeholder_header),
+            contentDescription = "Превью заголовка",
             text = "Категории"
         )
     }
