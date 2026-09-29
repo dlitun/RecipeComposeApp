@@ -79,8 +79,9 @@ fun RecipeDetailsScreen(
             showShareButton = true,
             showFavoriteButton = true,
             isFavorite = isFavorite,
-            onFavoriteToggle = onFavoriteToggle
-        ) { shareRecipe(context, recipe.id, recipe.title) }
+            onFavoriteToggle = onFavoriteToggle,
+            onShareClick = { shareRecipe(context, recipe.id, recipe.title) }
+        )
 
         Column(
             modifier = Modifier
