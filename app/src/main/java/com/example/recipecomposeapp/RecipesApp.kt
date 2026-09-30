@@ -110,7 +110,13 @@ private fun AppNavHost(
                 }
 
                 composable(route = Destination.Favorites.route) {
-                    FavoritesScreen()
+                    FavoritesScreen(
+                        repository = repository,
+                        favoriteDataStoreManager = favoriteDataStoreManager,
+                        onRecipeClick = { recipeId ->
+                            navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
+                        }
+                    )
                 }
 
                 composable(
