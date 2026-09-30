@@ -9,11 +9,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,10 +42,15 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
     val favoriteDataStoreManager = remember(context) {
         FavoriteDataStoreManager(context.applicationContext)
     }
+    val favoriteCountFlow = remember(favoriteDataStoreManager) {
+        favoriteDataStoreManager.getFavoriteCountFlow()
+    }
+    val favoriteCount by favoriteCountFlow.collectAsState(initial = 0)
 
     Scaffold(
         bottomBar = {
             BottomNavigation(
+                favoriteCount = favoriteCount,
                 onCategoriesClick = {
                     navController.navigate(Destination.Categories.route)
                 },
@@ -140,12 +144,11 @@ private fun AppNavHost(
                     val recipe = repository.getRecipeById(recipeId)?.toUiModel()
 
                     if (recipe != null) {
-                        var isFavorite by remember(recipeId) { mutableStateOf(false) }
-                        val coroutineScope = rememberCoroutineScope()
-
-                        LaunchedEffect(recipeId) {
-                            isFavorite = favoriteDataStoreManager.isFavorite(recipeId)
+                        val isFavoriteFlow = remember(favoriteDataStoreManager, recipeId) {
+                            favoriteDataStoreManager.isFavoriteFlow(recipeId)
                         }
+                        val isFavorite by isFavoriteFlow.collectAsState(initial = false)
+                        val coroutineScope = rememberCoroutineScope()
 
                         RecipeDetailsScreen(
                             recipe = recipe,
@@ -157,7 +160,6 @@ private fun AppNavHost(
                                     } else {
                                         favoriteDataStoreManager.addFavorite(recipeId)
                                     }
-                                    isFavorite = favoriteDataStoreManager.isFavorite(recipeId)
                                 }
                             }
                         )
