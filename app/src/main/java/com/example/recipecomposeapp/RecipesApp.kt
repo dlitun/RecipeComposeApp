@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,21 +26,22 @@ import com.example.recipecomposeapp.ui.favorites.FavoritesScreen
 import com.example.recipecomposeapp.ui.recipes.RecipesScreen
 import com.example.recipecomposeapp.ui.recipes.model.toUiModel
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
-import com.example.recipecomposeapp.util.FavoritePrefsManager
+import com.example.recipecomposeapp.util.FavoriteDataStoreManager
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun RecipesApp(deepLinkIntent: Intent? = null) {
     val context = LocalContext.current
     val navController = rememberNavController()
     val repository = remember { RecipesRepositoryStub() }
-    val favoritePrefsManager = remember(context) {
-        FavoritePrefsManager(context.applicationContext)
+    val favoriteDataStoreManager = remember(context) {
+        FavoriteDataStoreManager(context.applicationContext)
     }
 
     Scaffold(
@@ -62,7 +64,7 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
             AppNavHost(
                 navController = navController,
                 repository = repository,
-                favoritePrefsManager = favoritePrefsManager,
+                favoriteDataStoreManager = favoriteDataStoreManager,
                 deepLinkIntent = deepLinkIntent
             )
         }
@@ -73,7 +75,7 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
 private fun AppNavHost(
     navController: androidx.navigation.NavHostController,
     repository: RecipesRepositoryStub,
-    favoritePrefsManager: FavoritePrefsManager,
+    favoriteDataStoreManager: FavoriteDataStoreManager,
     deepLinkIntent: Intent?
 ) {
     LaunchedEffect(deepLinkIntent) {
@@ -138,20 +140,25 @@ private fun AppNavHost(
                     val recipe = repository.getRecipeById(recipeId)?.toUiModel()
 
                     if (recipe != null) {
-                        var isFavorite by remember(recipeId) {
-                            mutableStateOf(favoritePrefsManager.isFavorite(recipeId))
+                        var isFavorite by remember(recipeId) { mutableStateOf(false) }
+                        val coroutineScope = rememberCoroutineScope()
+
+                        LaunchedEffect(recipeId) {
+                            isFavorite = favoriteDataStoreManager.isFavorite(recipeId)
                         }
 
                         RecipeDetailsScreen(
                             recipe = recipe,
                             isFavorite = isFavorite,
                             onFavoriteToggle = {
-                                if (isFavorite) {
-                                    favoritePrefsManager.removeFromFavorites(recipeId)
-                                } else {
-                                    favoritePrefsManager.addToFavorites(recipeId)
+                                coroutineScope.launch {
+                                    if (isFavorite) {
+                                        favoriteDataStoreManager.removeFavorite(recipeId)
+                                    } else {
+                                        favoriteDataStoreManager.addFavorite(recipeId)
+                                    }
+                                    isFavorite = favoriteDataStoreManager.isFavorite(recipeId)
                                 }
-                                isFavorite = !isFavorite
                             }
                         )
                     } else {
