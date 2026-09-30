@@ -42,9 +42,10 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
     val favoriteDataStoreManager = remember(context) {
         FavoriteDataStoreManager(context.applicationContext)
     }
-    val favoriteCount by favoriteDataStoreManager
-        .getFavoriteCountFlow()
-        .collectAsState(initial = 0)
+    val favoriteCountFlow = remember(favoriteDataStoreManager) {
+        favoriteDataStoreManager.getFavoriteCountFlow()
+    }
+    val favoriteCount by favoriteCountFlow.collectAsState(initial = 0)
 
     Scaffold(
         bottomBar = {
@@ -143,9 +144,10 @@ private fun AppNavHost(
                     val recipe = repository.getRecipeById(recipeId)?.toUiModel()
 
                     if (recipe != null) {
-                        val isFavorite by favoriteDataStoreManager
-                            .isFavoriteFlow(recipeId)
-                            .collectAsState(initial = false)
+                        val isFavoriteFlow = remember(favoriteDataStoreManager, recipeId) {
+                            favoriteDataStoreManager.isFavoriteFlow(recipeId)
+                        }
+                        val isFavorite by isFavoriteFlow.collectAsState(initial = false)
                         val coroutineScope = rememberCoroutineScope()
 
                         RecipeDetailsScreen(
