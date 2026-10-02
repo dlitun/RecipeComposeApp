@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.ui.details
+package com.example.recipecomposeapp.features.details.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,12 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.recipecomposeapp.R
-import com.example.recipecomposeapp.core.shareRecipe
+import com.example.recipecomposeapp.core.utils.shareRecipe
 import com.example.recipecomposeapp.core.ui.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
-import com.example.recipecomposeapp.ui.recipes.model.IngredientUiModel
-import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.IngredientUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

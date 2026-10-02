@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.ui.details
+package com.example.recipecomposeapp.features.details.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import com.example.recipecomposeapp.ui.recipes.model.IngredientUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.IngredientUiModel
 
 @Composable
 fun IngredientItem(

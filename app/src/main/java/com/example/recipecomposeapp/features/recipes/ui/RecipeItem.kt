@@ -1,9 +1,9 @@
-package com.example.recipecomposeapp.ui.categories
+package com.example.recipecomposeapp.features.recipes.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,24 +23,25 @@ import coil.request.ImageRequest
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
-import com.example.recipecomposeapp.ui.categories.model.CategoryUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.IngredientUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
 
 @Composable
-fun CategoryItem(
-    category: CategoryUiModel,
-    onClick: () -> Unit,
+fun RecipeItem(
+    recipe: RecipeUiModel,
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val imageRequest = remember(context, category.imageUrl) {
+    val imageRequest = remember(context, recipe.imageUrl) {
         ImageRequest.Builder(context)
-            .data(category.imageUrl)
+            .data(recipe.imageUrl)
             .crossfade(true)
             .build()
     }
 
     Card(
-        onClick = onClick,
+        onClick = { onClick(recipe.id) },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.CornerLarge),
         elevation = CardDefaults.cardElevation(defaultElevation = Dimens.ElevationMedium),
@@ -49,39 +50,23 @@ fun CategoryItem(
         Column {
             AsyncImage(
                 model = imageRequest,
-                contentDescription = category.title,
+                contentDescription = recipe.title,
                 placeholder = painterResource(id = R.drawable.placeholder_header),
                 error = painterResource(id = R.drawable.placeholder_header),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1.2f)
+                    .aspectRatio(1.4f)
             )
 
             Text(
-                text = category.title.uppercase(),
+                text = recipe.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(
-                    start = Dimens.Space8,
-                    end = Dimens.Space8,
-                    top = Dimens.Space8
-                )
-            )
-
-            Text(
-                text = category.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 3,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(
-                    start = Dimens.Space8,
-                    end = Dimens.Space8,
-                    top = Dimens.Space4,
-                    bottom = Dimens.Space8
-                )
+                modifier = Modifier.padding(Dimens.Space16)
             )
         }
     }
@@ -89,16 +74,21 @@ fun CategoryItem(
 
 @Preview(showBackground = true)
 @Composable
-private fun CategoryItemPreview() {
+private fun RecipeItemPreview() {
     RecipesAppTheme {
-        CategoryItem(
-            category = CategoryUiModel(
+        RecipeItem(
+            recipe = RecipeUiModel(
                 id = 1,
-                title = "Бургеры",
-                description = "Рецепты всех популярных видов бургеров",
-                imageUrl = ""
+                title = "Классический бургер с говядиной",
+                imageUrl = "",
+                ingredients = listOf(
+                    IngredientUiModel(name = "Фарш", quantity = "0.5", unitOfMeasure = "кг")
+                ),
+                method = listOf("Смешать ингредиенты", "Обжарить котлеты"),
+                isFavorite = false
             ),
-            onClick = {}
+            onClick = { }
         )
     }
 }
+
