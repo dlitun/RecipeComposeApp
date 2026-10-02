@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.ui.recipes
+package com.example.recipecomposeapp.features.recipes.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,8 +27,8 @@ import com.example.recipecomposeapp.core.ui.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
-import com.example.recipecomposeapp.ui.recipes.model.RecipeUiModel
-import com.example.recipecomposeapp.ui.recipes.model.toUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
+import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
 
 @Composable
 fun RecipesScreen(

@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.ui.favorites
+package com.example.recipecomposeapp.features.favorites.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,9 +25,9 @@ import com.example.recipecomposeapp.core.ui.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
-import com.example.recipecomposeapp.ui.recipes.RecipeItem
-import com.example.recipecomposeapp.ui.recipes.model.toUiModel
-import com.example.recipecomposeapp.util.FavoriteDataStoreManager
+import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
+import com.example.recipecomposeapp.features.recipes.ui.RecipeItem
+import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import kotlinx.coroutines.flow.map
 
 @Composable

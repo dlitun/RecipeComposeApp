@@ -1,4 +1,4 @@
-package com.example.recipecomposeapp.util
+package com.example.recipecomposeapp.core.utils
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
