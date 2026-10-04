@@ -51,15 +51,21 @@ private fun FavoritesContent(
             text = "Избранное"
         )
 
-        when {
-            uiState.isLoading -> FavoritesLoadingState()
-            uiState.error != null -> FavoritesErrorState(uiState.error)
-            uiState.isEmpty -> EmptyFavoritesState()
-            else -> FavoritesList(
-                uiState = uiState,
-                onRecipeClick = onRecipeClick,
-                modifier = Modifier.weight(1f)
-            )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            when {
+                uiState.isLoading -> FavoritesLoadingState()
+                uiState.error != null -> FavoritesErrorState(uiState.error)
+                uiState.isEmpty -> EmptyFavoritesState()
+                else -> FavoritesList(
+                    uiState = uiState,
+                    onRecipeClick = onRecipeClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }
