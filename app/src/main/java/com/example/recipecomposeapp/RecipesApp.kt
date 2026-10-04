@@ -25,6 +25,7 @@ import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
 import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
+import com.example.recipecomposeapp.core.utils.Constants
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -98,11 +99,12 @@ private fun AppNavHost(
     ) {
                 composable(route = Destination.Categories.route) {
                     CategoriesScreen(
-                        onCategoryClick = { categoryId, categoryTitle, _ ->
+                        onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
                             navController.navigate(
-                                Destination.Recipes.createRoute(
+                                Destination.Recipes.createRecipesRoute(
                                     categoryId = categoryId,
-                                    categoryTitle = categoryTitle
+                                    categoryTitle = categoryTitle,
+                                    categoryImageUrl = categoryImageUrl
                                 )
                             )
                         }
@@ -122,16 +124,12 @@ private fun AppNavHost(
                 composable(
                     route = Destination.Recipes.route,
                     arguments = listOf(
-                        navArgument("categoryId") { type = NavType.IntType },
-                        navArgument("categoryTitle") { type = NavType.StringType }
+                        navArgument(Constants.CATEGORY_ID) { type = NavType.IntType },
+                        navArgument(Constants.CATEGORY_TITLE) { type = NavType.StringType },
+                        navArgument(Constants.CATEGORY_IMAGE_URL) { type = NavType.StringType }
                     )
-                ) { backStackEntry ->
-                    val categoryId = backStackEntry.arguments?.getInt("categoryId") ?: return@composable
-                    val encodedCategoryTitle = backStackEntry.arguments?.getString("categoryTitle") ?: ""
-
+                ) {
                     RecipesScreen(
-                        categoryId = categoryId,
-                        categoryTitle = Destination.Recipes.decodeTitle(encodedCategoryTitle),
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }

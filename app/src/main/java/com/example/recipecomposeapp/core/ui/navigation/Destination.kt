@@ -1,21 +1,29 @@
 package com.example.recipecomposeapp.core.ui.navigation
 
-import android.net.Uri
+import com.example.recipecomposeapp.core.utils.Constants
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 sealed class Destination(val route: String) {
     data object Categories : Destination("categories")
 
     data object Favorites : Destination("favorites")
 
-    data object Recipes : Destination("recipes/{categoryId}/{categoryTitle}") {
+    data object Recipes : Destination(
+        "recipes/{${Constants.CATEGORY_ID}}/{${Constants.CATEGORY_TITLE}}/{${Constants.CATEGORY_IMAGE_URL}}"
+    ) {
         private const val PATH = "recipes"
 
-        fun createRoute(categoryId: Int, categoryTitle: String): String {
-            return "$PATH/$categoryId/${Uri.encode(categoryTitle)}"
-        }
+        fun createRecipesRoute(
+            categoryId: Int,
+            categoryTitle: String,
+            categoryImageUrl: String
+        ): String {
+            val charset = StandardCharsets.UTF_8.toString()
+            val encodedTitle = URLEncoder.encode(categoryTitle, charset)
+            val encodedImageUrl = URLEncoder.encode(categoryImageUrl, charset)
 
-        fun decodeTitle(encodedTitle: String): String {
-            return Uri.decode(encodedTitle)
+            return "$PATH/$categoryId/$encodedTitle/$encodedImageUrl"
         }
     }
 
