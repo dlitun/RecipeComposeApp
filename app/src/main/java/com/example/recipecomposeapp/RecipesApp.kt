@@ -98,7 +98,7 @@ private fun AppNavHost(
     ) {
                 composable(route = Destination.Categories.route) {
                     CategoriesScreen(
-                        onCategoryClick = { categoryId, categoryTitle ->
+                        onCategoryClick = { categoryId, categoryTitle, _ ->
                             navController.navigate(
                                 Destination.Recipes.createRoute(
                                     categoryId = categoryId,
