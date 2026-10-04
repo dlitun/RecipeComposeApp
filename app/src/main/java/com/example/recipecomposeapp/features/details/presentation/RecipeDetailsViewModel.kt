@@ -29,7 +29,7 @@ class RecipeDetailsViewModel(application: Application) : AndroidViewModel(applic
     fun initializeWithRecipe(recipe: RecipeUiModel) {
         if (_uiState.value.recipe?.id == recipe.id) return
 
-        _uiState.value = RecipeDetailsUiState(recipe = recipe, isLoading = false)
+        _uiState.value = RecipeDetailsUiState(recipe = recipe)
 
         favoriteUpdatesJob?.cancel()
         favoriteUpdatesJob = favoriteDataStoreManager
@@ -38,6 +38,7 @@ class RecipeDetailsViewModel(application: Application) : AndroidViewModel(applic
                 _uiState.update { currentState ->
                     currentState.copy(
                         recipe = currentState.recipe?.copy(isFavorite = isFavorite),
+                        isLoading = false,
                         error = null
                     )
                 }
@@ -45,6 +46,7 @@ class RecipeDetailsViewModel(application: Application) : AndroidViewModel(applic
             .catch { exception ->
                 _uiState.update { currentState ->
                     currentState.copy(
+                        isLoading = false,
                         error = exception.message ?: "Не удалось проверить избранное"
                     )
                 }
