@@ -15,7 +15,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -42,14 +41,9 @@ import kotlin.math.roundToInt
 
 @Composable
 fun RecipeDetailsScreen(
-    recipe: RecipeUiModel,
     modifier: Modifier = Modifier,
     viewModel: RecipeDetailsViewModel = viewModel()
 ) {
-    LaunchedEffect(recipe.id) {
-        viewModel.initializeWithRecipe(recipe)
-    }
-
     val uiState by viewModel.uiState.collectAsState()
     RecipeDetailsContent(
         uiState = uiState,
