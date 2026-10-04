@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -17,11 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
 import com.example.recipecomposeapp.features.details.ui.RecipeDetailsScreen
 import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
-import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
 import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.core.utils.Constants
@@ -37,7 +34,6 @@ import kotlinx.coroutines.delay
 fun RecipesApp(deepLinkIntent: Intent? = null) {
     val context = LocalContext.current
     val navController = rememberNavController()
-    val repository = remember { RecipesRepositoryStub() }
     val favoriteDataStoreManager = remember(context) {
         FavoriteDataStoreManager(context.applicationContext)
     }
@@ -66,7 +62,6 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
         ) {
             AppNavHost(
                 navController = navController,
-                repository = repository,
                 deepLinkIntent = deepLinkIntent
             )
         }
@@ -76,7 +71,6 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
 @Composable
 private fun AppNavHost(
     navController: androidx.navigation.NavHostController,
-    repository: RecipesRepositoryStub,
     deepLinkIntent: Intent?
 ) {
     LaunchedEffect(deepLinkIntent) {
@@ -135,19 +129,8 @@ private fun AppNavHost(
                     arguments = listOf(
                         navArgument(Destination.RecipeDetails.PARAM_RECIPE_ID) { type = NavType.IntType }
                     )
-                ) { backStackEntry ->
-                    val recipeId = backStackEntry.arguments
-                        ?.getInt(Destination.RecipeDetails.PARAM_RECIPE_ID)
-                        ?: return@composable
-                    val recipe = repository.getRecipeById(recipeId)?.toUiModel()
-
-                    if (recipe != null) {
-                        RecipeDetailsScreen(
-                            recipe = recipe
-                        )
-                    } else {
-                        Text(text = "Рецепт не найден")
-                    }
+                ) {
+                    RecipeDetailsScreen()
                 }
             }
 }
