@@ -8,6 +8,7 @@ import com.example.recipecomposeapp.features.details.presentation.model.MAX_PORT
 import com.example.recipecomposeapp.features.details.presentation.model.MIN_PORTIONS
 import com.example.recipecomposeapp.features.details.presentation.model.RecipeDetailsUiState
 import com.example.recipecomposeapp.features.recipes.presentation.model.RecipeUiModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,6 +65,8 @@ class RecipeDetailsViewModel(application: Application) : AndroidViewModel(applic
                 } else {
                     favoriteDataStoreManager.addFavorite(recipe.id)
                 }
+            } catch (exception: CancellationException) {
+                throw exception
             } catch (exception: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(
