@@ -12,7 +12,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +32,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun RecipesApp(deepLinkIntent: Intent? = null) {
@@ -69,7 +67,6 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
             AppNavHost(
                 navController = navController,
                 repository = repository,
-                favoriteDataStoreManager = favoriteDataStoreManager,
                 deepLinkIntent = deepLinkIntent
             )
         }
@@ -80,7 +77,6 @@ fun RecipesApp(deepLinkIntent: Intent? = null) {
 private fun AppNavHost(
     navController: androidx.navigation.NavHostController,
     repository: RecipesRepositoryStub,
-    favoriteDataStoreManager: FavoriteDataStoreManager,
     deepLinkIntent: Intent?
 ) {
     LaunchedEffect(deepLinkIntent) {
@@ -113,8 +109,6 @@ private fun AppNavHost(
 
                 composable(route = Destination.Favorites.route) {
                     FavoritesScreen(
-                        repository = repository,
-                        favoriteDataStoreManager = favoriteDataStoreManager,
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }
@@ -148,24 +142,8 @@ private fun AppNavHost(
                     val recipe = repository.getRecipeById(recipeId)?.toUiModel()
 
                     if (recipe != null) {
-                        val isFavoriteFlow = remember(favoriteDataStoreManager, recipeId) {
-                            favoriteDataStoreManager.isFavoriteFlow(recipeId)
-                        }
-                        val isFavorite by isFavoriteFlow.collectAsState(initial = false)
-                        val coroutineScope = rememberCoroutineScope()
-
                         RecipeDetailsScreen(
-                            recipe = recipe,
-                            isFavorite = isFavorite,
-                            onFavoriteToggle = {
-                                coroutineScope.launch {
-                                    if (isFavorite) {
-                                        favoriteDataStoreManager.removeFavorite(recipeId)
-                                    } else {
-                                        favoriteDataStoreManager.addFavorite(recipeId)
-                                    }
-                                }
-                            }
+                            recipe = recipe
                         )
                     } else {
                         Text(text = "Рецепт не найден")
