@@ -27,7 +27,8 @@ class MainActivity : ComponentActivity() {
             var connection: HttpURLConnection? = null
             try {
                 val url = URL(CATEGORIES_URL)
-                connection = url.openConnection() as HttpURLConnection
+                connection = url.openConnection() as? HttpURLConnection
+                    ?: error("Не удалось создать HTTP-соединение")
                 connection.requestMethod = "GET"
                 connection.connect()
 
