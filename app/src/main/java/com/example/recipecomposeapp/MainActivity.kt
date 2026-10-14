@@ -58,6 +58,10 @@ class MainActivity : ComponentActivity() {
                 .url(CATEGORIES_URL)
                 .build()
             val responseBody = okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    Log.e(TAG, "Ошибка при загрузке категорий. Код ответа: ${response.code}")
+                    return
+                }
                 response.body?.string() ?: error("Пустое тело ответа категорий")
             }
             val categories = Json.decodeFromString<List<CategoryDto>>(responseBody)
@@ -84,6 +88,14 @@ class MainActivity : ComponentActivity() {
                 .url(recipesUrl)
                 .build()
             val responseBody = okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    Log.e(
+                        TAG,
+                        "Ошибка при загрузке рецептов категории ${category.title}. " +
+                            "Код ответа: ${response.code}"
+                    )
+                    return
+                }
                 response.body?.string()
                     ?: error("Пустое тело ответа рецептов категории ${category.title}")
             }
