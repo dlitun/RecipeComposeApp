@@ -9,24 +9,33 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
+import com.example.recipecomposeapp.core.network.NetworkConfig
+import com.example.recipecomposeapp.core.network.api.RecipesApiService
 import com.example.recipecomposeapp.data.dto.CategoryDto
-import com.example.recipecomposeapp.data.dto.RecipeDto
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import kotlin.concurrent.thread
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
 
 class MainActivity : ComponentActivity() {
     private var deepLinkIntent by mutableStateOf<Intent?>(null)
-    private val okHttpClient = OkHttpClient()
-    private val threadPool: ExecutorService = Executors.newFixedThreadPool(10)
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(NetworkConfig.BASE_URL)
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .build()
+    private val apiService = retrofit.create(RecipesApiService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        thread {
+        lifecycleScope.launch(Dispatchers.IO) {
             loadCategories()
         }
 
@@ -47,24 +56,9 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
     }
 
-    override fun onDestroy() {
-        threadPool.shutdown()
-        super.onDestroy()
-    }
-
-    private fun loadCategories() {
+    private suspend fun loadCategories() {
         try {
-            val request = Request.Builder()
-                .url(CATEGORIES_URL)
-                .build()
-            val responseBody = okHttpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    Log.e(TAG, "Ошибка при загрузке категорий. Код ответа: ${response.code}")
-                    return
-                }
-                response.body?.string() ?: error("Пустое тело ответа категорий")
-            }
-            val categories = Json.decodeFromString<List<CategoryDto>>(responseBody)
+            val categories = apiService.getCategories()
 
             Log.d(
                 TAG,
@@ -72,7 +66,7 @@ class MainActivity : ComponentActivity() {
             )
 
             categories.forEach { category ->
-                threadPool.execute {
+                lifecycleScope.launch(Dispatchers.IO) {
                     loadRecipes(category)
                 }
             }
@@ -81,25 +75,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun loadRecipes(category: CategoryDto) {
+    private suspend fun loadRecipes(category: CategoryDto) {
         try {
-            val recipesUrl = "$CATEGORIES_URL/${category.id}/recipes"
-            val request = Request.Builder()
-                .url(recipesUrl)
-                .build()
-            val responseBody = okHttpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    Log.e(
-                        TAG,
-                        "Ошибка при загрузке рецептов категории ${category.title}. " +
-                            "Код ответа: ${response.code}"
-                    )
-                    return
-                }
-                response.body?.string()
-                    ?: error("Пустое тело ответа рецептов категории ${category.title}")
-            }
-            val recipes = Json.decodeFromString<List<RecipeDto>>(responseBody)
+            val recipes = apiService.getRecipesByCategory(category.id)
 
             Log.d(
                 TAG,
@@ -113,6 +91,5 @@ class MainActivity : ComponentActivity() {
 
     private companion object {
         const val TAG = "Pool"
-        const val CATEGORIES_URL = "https://recipes.androidsprint.ru/api/category"
     }
 }
