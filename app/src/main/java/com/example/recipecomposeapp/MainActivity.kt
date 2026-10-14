@@ -106,7 +106,6 @@ class MainActivity : ComponentActivity() {
                 requestMethod = "GET"
                 connectTimeout = NETWORK_TIMEOUT_MS
                 readTimeout = NETWORK_TIMEOUT_MS
-                connect()
             }
             ?: error("Не удалось создать HTTP-соединение для $url")
     }
