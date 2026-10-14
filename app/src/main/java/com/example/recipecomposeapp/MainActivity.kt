@@ -104,6 +104,8 @@ class MainActivity : ComponentActivity() {
         return (URL(url).openConnection() as? HttpURLConnection)
             ?.apply {
                 requestMethod = "GET"
+                connectTimeout = NETWORK_TIMEOUT_MS
+                readTimeout = NETWORK_TIMEOUT_MS
                 connect()
             }
             ?: error("Не удалось создать HTTP-соединение для $url")
@@ -112,5 +114,6 @@ class MainActivity : ComponentActivity() {
     private companion object {
         const val TAG = "Pool"
         const val CATEGORIES_URL = "https://recipes.androidsprint.ru/api/category"
+        const val NETWORK_TIMEOUT_MS = 10_000
     }
 }
