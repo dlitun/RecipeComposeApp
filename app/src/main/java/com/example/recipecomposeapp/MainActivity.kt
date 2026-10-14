@@ -11,20 +11,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.recipecomposeapp.data.dto.CategoryDto
 import com.example.recipecomposeapp.data.dto.RecipeDto
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 class MainActivity : ComponentActivity() {
     private var deepLinkIntent by mutableStateOf<Intent?>(null)
+    private val okHttpClient = OkHttpClient()
     private val threadPool: ExecutorService = Executors.newFixedThreadPool(10)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        threadPool.execute {
+        thread {
             loadCategories()
         }
 
@@ -51,13 +53,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun loadCategories() {
-        var connection: HttpURLConnection? = null
-
         try {
-            connection = openConnection(CATEGORIES_URL)
-            val responseBody = connection.inputStream
-                .bufferedReader()
-                .use { reader -> reader.readText() }
+            val request = Request.Builder()
+                .url(CATEGORIES_URL)
+                .build()
+            val responseBody = okHttpClient.newCall(request).execute().use { response ->
+                response.body?.string() ?: error("Пустое тело ответа категорий")
+            }
             val categories = Json.decodeFromString<List<CategoryDto>>(responseBody)
 
             Log.d(
@@ -72,20 +74,19 @@ class MainActivity : ComponentActivity() {
             }
         } catch (exception: Exception) {
             Log.e(TAG, "Ошибка при загрузке категорий", exception)
-        } finally {
-            connection?.disconnect()
         }
     }
 
     private fun loadRecipes(category: CategoryDto) {
-        var connection: HttpURLConnection? = null
-
         try {
             val recipesUrl = "$CATEGORIES_URL/${category.id}/recipes"
-            connection = openConnection(recipesUrl)
-            val responseBody = connection.inputStream
-                .bufferedReader()
-                .use { reader -> reader.readText() }
+            val request = Request.Builder()
+                .url(recipesUrl)
+                .build()
+            val responseBody = okHttpClient.newCall(request).execute().use { response ->
+                response.body?.string()
+                    ?: error("Пустое тело ответа рецептов категории ${category.title}")
+            }
             val recipes = Json.decodeFromString<List<RecipeDto>>(responseBody)
 
             Log.d(
@@ -95,24 +96,11 @@ class MainActivity : ComponentActivity() {
             )
         } catch (exception: Exception) {
             Log.e(TAG, "Ошибка при загрузке рецептов категории ${category.title}", exception)
-        } finally {
-            connection?.disconnect()
         }
-    }
-
-    private fun openConnection(url: String): HttpURLConnection {
-        return (URL(url).openConnection() as? HttpURLConnection)
-            ?.apply {
-                requestMethod = "GET"
-                connectTimeout = NETWORK_TIMEOUT_MS
-                readTimeout = NETWORK_TIMEOUT_MS
-            }
-            ?: error("Не удалось создать HTTP-соединение для $url")
     }
 
     private companion object {
         const val TAG = "Pool"
         const val CATEGORIES_URL = "https://recipes.androidsprint.ru/api/category"
-        const val NETWORK_TIMEOUT_MS = 10_000
     }
 }
