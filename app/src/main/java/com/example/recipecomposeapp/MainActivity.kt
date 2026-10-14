@@ -14,6 +14,7 @@ import com.example.recipecomposeapp.core.network.NetworkConfig
 import com.example.recipecomposeapp.core.network.api.RecipesApiService
 import com.example.recipecomposeapp.data.dto.CategoryDto
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -70,6 +71,8 @@ class MainActivity : ComponentActivity() {
                     loadRecipes(category)
                 }
             }
+        } catch (exception: CancellationException) {
+            throw exception
         } catch (exception: Exception) {
             Log.e(TAG, "Ошибка при загрузке категорий", exception)
         }
@@ -84,6 +87,8 @@ class MainActivity : ComponentActivity() {
                 "Поток: ${Thread.currentThread().name}, " +
                     "категория: ${category.title}, получено рецептов: ${recipes.size}"
             )
+        } catch (exception: CancellationException) {
+            throw exception
         } catch (exception: Exception) {
             Log.e(TAG, "Ошибка при загрузке рецептов категории ${category.title}", exception)
         }
