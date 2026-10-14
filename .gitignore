@@ -1,5 +1,6 @@
 *.iml
 .gradle
+.gradle-validation/
 /local.properties
 .idea/*
 /.idea/caches
