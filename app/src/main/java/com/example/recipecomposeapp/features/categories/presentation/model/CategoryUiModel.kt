@@ -17,6 +17,6 @@ fun CategoryDto.toUiModel(): CategoryUiModel {
         id = id,
         title = title,
         description = description,
-        imageUrl = if (imageUrl.startsWith("http")) imageUrl else Constants.ASSETS_URI_PREFIX + imageUrl
+        imageUrl = if (imageUrl.startsWith("http")) imageUrl else Constants.IMAGES_BASE_URL + imageUrl
     )
 }
