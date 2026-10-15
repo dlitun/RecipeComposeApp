@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.recipecomposeapp.R
@@ -41,8 +40,8 @@ import kotlin.math.roundToInt
 
 @Composable
 fun RecipeDetailsScreen(
+    viewModel: RecipeDetailsViewModel,
     modifier: Modifier = Modifier,
-    viewModel: RecipeDetailsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     RecipeDetailsContent(

@@ -17,24 +17,41 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
+import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
+import com.example.recipecomposeapp.features.categories.presentation.model.CategoriesUiState
 
 @Composable
 fun CategoriesScreen(
+    repository: RecipesRepository,
     modifier: Modifier = Modifier,
     onCategoryClick: (Int, String, String) -> Unit
 ) {
-    val viewModel: CategoriesViewModel = viewModel()
+    val viewModel = remember(repository) { CategoriesViewModel(repository) }
     val uiState by viewModel.uiState.collectAsState()
+
+    CategoriesContent(
+        uiState = uiState,
+        onCategoryClick = onCategoryClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun CategoriesContent(
+    uiState: CategoriesUiState,
+    onCategoryClick: (Int, String, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val gridState = rememberLazyGridState()
 
     Column(
@@ -99,7 +116,8 @@ fun CategoriesScreen(
 @Composable
 fun CategoriesScreenPreview() {
     RecipesAppTheme {
-        CategoriesScreen(
+        CategoriesContent(
+            uiState = CategoriesUiState(isLoading = false),
             onCategoryClick = { _, _, _ -> }
         )
     }

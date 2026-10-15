@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.ScreenHeader
@@ -31,8 +30,8 @@ import com.example.recipecomposeapp.features.recipes.presentation.model.RecipesU
 @Composable
 fun RecipesScreen(
     onRecipeClick: (Int) -> Unit,
+    viewModel: RecipesViewModel,
     modifier: Modifier = Modifier,
-    viewModel: RecipesViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
+import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.details.presentation.model.DEFAULT_PORTIONS
 import com.example.recipecomposeapp.features.details.presentation.model.MAX_PORTIONS
 import com.example.recipecomposeapp.features.details.presentation.model.MIN_PORTIONS
@@ -25,9 +25,9 @@ import kotlinx.coroutines.launch
 
 class RecipeDetailsViewModel(
     application: Application,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val repository: RecipesRepository
 ) : AndroidViewModel(application) {
-    private val repository = RecipesRepositoryStub()
     private val favoriteDataStoreManager = FavoriteDataStoreManager(application)
 
     private val recipeId: Int = savedStateHandle[Destination.RecipeDetails.PARAM_RECIPE_ID]
@@ -47,25 +47,41 @@ class RecipeDetailsViewModel(
     }
 
     private fun loadRecipe(recipeId: Int) {
-        val recipe = repository.getRecipeById(recipeId)?.toUiModel()
-        if (recipe == null) {
+        viewModelScope.launch {
             _uiState.update { currentState ->
-                currentState.copy(
-                    recipe = null,
-                    isLoading = false,
-                    error = "Рецепт не найден"
-                )
+                currentState.copy(isLoading = true, error = null)
             }
-            return
-        }
 
-        _uiState.update { currentState ->
-            currentState.copy(recipe = recipe, isLoading = true, error = null)
-        }
+            try {
+                val recipe = repository.getRecipe(recipeId).toUiModel()
 
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        recipe = recipe,
+                        isLoading = true,
+                        error = null
+                    )
+                }
+
+                observeFavoriteUpdates(recipe.id)
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        recipe = null,
+                        isLoading = false,
+                        error = exception.message ?: "Не удалось загрузить рецепт"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun observeFavoriteUpdates(recipeId: Int) {
         favoriteUpdatesJob?.cancel()
         favoriteUpdatesJob = favoriteDataStoreManager
-            .isFavoriteFlow(recipe.id)
+            .isFavoriteFlow(recipeId)
             .onEach { isFavorite ->
                 _uiState.update { currentState ->
                     currentState.copy(

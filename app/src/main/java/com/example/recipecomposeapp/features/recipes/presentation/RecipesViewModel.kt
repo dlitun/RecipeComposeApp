@@ -4,11 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipecomposeapp.core.utils.Constants
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
+import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.recipes.presentation.model.RecipesUiState
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,10 +17,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RecipesViewModel(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val repository: RecipesRepository
 ) : ViewModel() {
-
-    private val repository = RecipesRepositoryStub()
 
     private val categoryId: Int = requireNotNull(savedStateHandle[Constants.CATEGORY_ID]) {
         "Параметр categoryId обязателен"
@@ -57,7 +57,7 @@ class RecipesViewModel(
 
             try {
                 val recipes = repository
-                    .getRecipesByCategoryId(categoryId)
+                    .getRecipesByCategory(categoryId)
                     .map { recipe -> recipe.toUiModel() }
 
                 _uiState.update { currentState ->
@@ -66,6 +66,8 @@ class RecipesViewModel(
                         isLoading = false
                     )
                 }
+            } catch (exception: CancellationException) {
+                throw exception
             } catch (exception: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(
