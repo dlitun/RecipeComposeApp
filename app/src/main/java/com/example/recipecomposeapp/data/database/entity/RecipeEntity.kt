@@ -9,6 +9,6 @@ data class RecipeEntity(
     val title: String,
     val categoryId: Int,
     val imageUrl: String,
-    val ingredients: List<String>,
-    val method: List<String>
+    val ingredients: String,
+    val method: String
 )
