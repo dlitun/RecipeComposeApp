@@ -14,7 +14,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
-import coil.compose.rememberConstraintsSizeResolver
 import coil.request.ImageRequest
 import com.example.recipecomposeapp.R
 
@@ -26,18 +25,16 @@ fun RecipeImage(
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
-    val sizeResolver = rememberConstraintsSizeResolver()
     var isLoading by remember(imageUrl) { mutableStateOf(false) }
-    val imageRequest = remember(context, imageUrl, sizeResolver) {
+    val imageRequest = remember(context, imageUrl) {
         ImageRequest.Builder(context)
             .data(imageUrl)
-            .size(sizeResolver)
             .crossfade(true)
             .build()
     }
 
     Box(
-        modifier = modifier.then(sizeResolver),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         AsyncImage(
