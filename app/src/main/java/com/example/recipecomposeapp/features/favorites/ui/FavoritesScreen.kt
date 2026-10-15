@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipecomposeapp.R
 import com.example.recipecomposeapp.core.ui.ScreenHeader
 import com.example.recipecomposeapp.core.ui.theme.Dimens
@@ -31,8 +30,8 @@ import com.example.recipecomposeapp.features.recipes.ui.RecipeItem
 @Composable
 fun FavoritesScreen(
     onRecipeClick: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: FavoritesViewModel = viewModel()
+    viewModel: FavoritesViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     FavoritesContent(uiState = uiState, onRecipeClick = onRecipeClick, modifier = modifier)

@@ -19,9 +19,11 @@ import com.example.recipecomposeapp.core.network.NetworkConfig
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryImpl
+import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
 import com.example.recipecomposeapp.features.details.presentation.RecipeDetailsViewModel
 import com.example.recipecomposeapp.features.details.ui.RecipeDetailsScreen
+import com.example.recipecomposeapp.features.favorites.presentation.FavoritesViewModel
 import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
 import com.example.recipecomposeapp.features.recipes.presentation.RecipesViewModel
 import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
@@ -97,9 +99,13 @@ private fun AppNavHost(
         navController = navController,
         startDestination = Destination.Categories.route
     ) {
-                composable(route = Destination.Categories.route) {
+                composable(route = Destination.Categories.route) { backStackEntry ->
+                    val viewModel = remember(backStackEntry, repository) {
+                        CategoriesViewModel(repository)
+                    }
+
                     CategoriesScreen(
-                        repository = repository,
+                        viewModel = viewModel,
                         onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
                             navController.navigate(
                                 Destination.Recipes.createRecipesRoute(
@@ -112,8 +118,16 @@ private fun AppNavHost(
                     )
                 }
 
-                composable(route = Destination.Favorites.route) {
+                composable(route = Destination.Favorites.route) { backStackEntry ->
+                    val viewModel = remember(backStackEntry, repository, context) {
+                        FavoritesViewModel(
+                            application = context.applicationContext as Application,
+                            repository = repository
+                        )
+                    }
+
                     FavoritesScreen(
+                        viewModel = viewModel,
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }

@@ -4,9 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryStub
+import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.favorites.presentation.model.FavoritesUiState
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -14,21 +15,32 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 
-class FavoritesViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = RecipesRepositoryStub()
+class FavoritesViewModel(
+    application: Application,
+    private val repository: RecipesRepository
+) : AndroidViewModel(application) {
     private val favoriteDataStoreManager = FavoriteDataStoreManager(application)
 
     val uiState: StateFlow<FavoritesUiState> = favoriteDataStoreManager
         .getFavoriteIdsFlow()
         .map { favoriteIds ->
-            FavoritesUiState(
-                favoriteRecipes = favoriteIds.mapNotNull { favoriteId ->
-                    favoriteId.toIntOrNull()
-                        ?.let(repository::getRecipeById)
-                        ?.toUiModel()
-                },
-                isLoading = false
-            )
+            try {
+                FavoritesUiState(
+                    favoriteRecipes = favoriteIds.mapNotNull { favoriteId ->
+                        favoriteId.toIntOrNull()?.let { recipeId ->
+                            repository.getRecipe(recipeId).toUiModel()
+                        }
+                    },
+                    isLoading = false
+                )
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                FavoritesUiState(
+                    isLoading = false,
+                    error = exception.message ?: "Не удалось загрузить избранное"
+                )
+            }
         }
         .onStart { emit(FavoritesUiState(isLoading = true)) }
         .catch { exception ->
