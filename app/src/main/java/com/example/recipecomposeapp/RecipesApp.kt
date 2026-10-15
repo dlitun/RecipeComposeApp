@@ -1,5 +1,6 @@
 package com.example.recipecomposeapp
 
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -14,11 +15,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.recipecomposeapp.core.network.NetworkConfig
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
+import com.example.recipecomposeapp.data.repository.RecipesRepositoryImpl
+import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
+import com.example.recipecomposeapp.features.details.presentation.RecipeDetailsViewModel
 import com.example.recipecomposeapp.features.details.ui.RecipeDetailsScreen
+import com.example.recipecomposeapp.features.favorites.presentation.FavoritesViewModel
 import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
+import com.example.recipecomposeapp.features.recipes.presentation.RecipesViewModel
 import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.core.utils.Constants
@@ -73,6 +80,11 @@ private fun AppNavHost(
     navController: androidx.navigation.NavHostController,
     deepLinkIntent: Intent?
 ) {
+    val context = LocalContext.current
+    val repository = remember {
+        RecipesRepositoryImpl(NetworkConfig.apiService)
+    }
+
     LaunchedEffect(deepLinkIntent) {
         val uri = deepLinkIntent?.data ?: return@LaunchedEffect
         val recipeId = parseRecipeIdFromDeepLink(uri) ?: return@LaunchedEffect
@@ -87,8 +99,13 @@ private fun AppNavHost(
         navController = navController,
         startDestination = Destination.Categories.route
     ) {
-                composable(route = Destination.Categories.route) {
+                composable(route = Destination.Categories.route) { backStackEntry ->
+                    val viewModel = remember(backStackEntry, repository) {
+                        CategoriesViewModel(repository)
+                    }
+
                     CategoriesScreen(
+                        viewModel = viewModel,
                         onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
                             navController.navigate(
                                 Destination.Recipes.createRecipesRoute(
@@ -101,8 +118,16 @@ private fun AppNavHost(
                     )
                 }
 
-                composable(route = Destination.Favorites.route) {
+                composable(route = Destination.Favorites.route) { backStackEntry ->
+                    val viewModel = remember(backStackEntry, repository, context) {
+                        FavoritesViewModel(
+                            application = context.applicationContext as Application,
+                            repository = repository
+                        )
+                    }
+
                     FavoritesScreen(
+                        viewModel = viewModel,
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }
@@ -116,8 +141,13 @@ private fun AppNavHost(
                         navArgument(Constants.CATEGORY_TITLE) { type = NavType.StringType },
                         navArgument(Constants.CATEGORY_IMAGE_URL) { type = NavType.StringType }
                     )
-                ) {
+                ) { backStackEntry ->
+                    val viewModel = remember(backStackEntry, repository) {
+                        RecipesViewModel(backStackEntry.savedStateHandle, repository)
+                    }
+
                     RecipesScreen(
+                        viewModel = viewModel,
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }
@@ -129,8 +159,16 @@ private fun AppNavHost(
                     arguments = listOf(
                         navArgument(Destination.RecipeDetails.PARAM_RECIPE_ID) { type = NavType.IntType }
                     )
-                ) {
-                    RecipeDetailsScreen()
+                ) { backStackEntry ->
+                    val viewModel = remember(backStackEntry, repository, context) {
+                        RecipeDetailsViewModel(
+                            application = context.applicationContext as Application,
+                            savedStateHandle = backStackEntry.savedStateHandle,
+                            repository = repository
+                        )
+                    }
+
+                    RecipeDetailsScreen(viewModel = viewModel)
                 }
             }
 }
