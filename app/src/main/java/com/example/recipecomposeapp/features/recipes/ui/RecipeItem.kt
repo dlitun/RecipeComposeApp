@@ -10,17 +10,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.recipecomposeapp.R
+import com.example.recipecomposeapp.core.ui.RecipeImage
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.features.recipes.presentation.model.IngredientUiModel
@@ -32,14 +27,6 @@ fun RecipeItem(
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val imageRequest = remember(context, recipe.imageUrl) {
-        ImageRequest.Builder(context)
-            .data(recipe.imageUrl)
-            .crossfade(true)
-            .build()
-    }
-
     Card(
         onClick = { onClick(recipe.id) },
         modifier = modifier.fillMaxWidth(),
@@ -48,11 +35,9 @@ fun RecipeItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column {
-            AsyncImage(
-                model = imageRequest,
+            RecipeImage(
+                imageUrl = recipe.imageUrl,
                 contentDescription = recipe.title,
-                placeholder = painterResource(id = R.drawable.placeholder_header),
-                error = painterResource(id = R.drawable.placeholder_header),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,4 +76,3 @@ private fun RecipeItemPreview() {
         )
     }
 }
-

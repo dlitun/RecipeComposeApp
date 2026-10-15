@@ -10,17 +10,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.recipecomposeapp.R
+import com.example.recipecomposeapp.core.ui.RecipeImage
 import com.example.recipecomposeapp.core.ui.theme.Dimens
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.features.categories.presentation.model.CategoryUiModel
@@ -31,14 +26,6 @@ fun CategoryItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val imageRequest = remember(context, category.imageUrl) {
-        ImageRequest.Builder(context)
-            .data(category.imageUrl)
-            .crossfade(true)
-            .build()
-    }
-
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -47,11 +34,9 @@ fun CategoryItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column {
-            AsyncImage(
-                model = imageRequest,
+            RecipeImage(
+                imageUrl = category.imageUrl,
                 contentDescription = category.title,
-                placeholder = painterResource(id = R.drawable.placeholder_header),
-                error = painterResource(id = R.drawable.placeholder_header),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
