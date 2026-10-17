@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipesRepositoryImpl(
+class RecipesRepositoryImpl @Inject constructor(
     private val apiService: RecipesApiService,
     database: RecipesDatabase
 ) : RecipesRepository {

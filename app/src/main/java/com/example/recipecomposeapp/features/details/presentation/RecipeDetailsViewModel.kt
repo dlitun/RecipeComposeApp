@@ -1,8 +1,7 @@
 package com.example.recipecomposeapp.features.details.presentation
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
@@ -12,6 +11,7 @@ import com.example.recipecomposeapp.features.details.presentation.model.MAX_PORT
 import com.example.recipecomposeapp.features.details.presentation.model.MIN_PORTIONS
 import com.example.recipecomposeapp.features.details.presentation.model.RecipeDetailsUiState
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,13 +22,14 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipeDetailsViewModel(
-    application: Application,
+@HiltViewModel
+class RecipeDetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: RecipesRepository
-) : AndroidViewModel(application) {
-    private val favoriteDataStoreManager = FavoriteDataStoreManager(application)
+    private val repository: RecipesRepository,
+    private val favoriteDataStoreManager: FavoriteDataStoreManager
+) : ViewModel() {
 
     private val recipeId: Int = savedStateHandle[Destination.RecipeDetails.PARAM_RECIPE_ID]
         ?: throw IllegalArgumentException("recipeId is required")

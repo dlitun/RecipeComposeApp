@@ -14,10 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.recipecomposeapp.app.di.FavoritesViewModelFactory
-import com.example.recipecomposeapp.app.di.RecipeApplication
-import com.example.recipecomposeapp.app.di.RecipeDetailsViewModelFactory
-import com.example.recipecomposeapp.app.di.RecipesViewModelFactory
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
@@ -27,6 +23,7 @@ import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.core.utils.Constants
 import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -77,10 +74,6 @@ private fun AppNavHost(
     navController: androidx.navigation.NavHostController,
     deepLinkIntent: Intent?
 ) {
-    val context = LocalContext.current
-    val application = context.applicationContext as RecipeApplication
-    val appContainer = application.appContainer
-
     LaunchedEffect(deepLinkIntent) {
         val uri = deepLinkIntent?.data ?: return@LaunchedEffect
         val recipeId = parseRecipeIdFromDeepLink(uri) ?: return@LaunchedEffect
@@ -109,16 +102,9 @@ private fun AppNavHost(
                     )
                 }
 
-                composable(route = Destination.Favorites.route) { backStackEntry ->
-                    val viewModel = remember(backStackEntry, appContainer) {
-                        FavoritesViewModelFactory(
-                            application = application,
-                            repository = appContainer.recipesRepository
-                        ).create()
-                    }
-
+                composable(route = Destination.Favorites.route) {
                     FavoritesScreen(
-                        viewModel = viewModel,
+                        viewModel = hiltViewModel(),
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }
@@ -132,16 +118,9 @@ private fun AppNavHost(
                         navArgument(Constants.CATEGORY_TITLE) { type = NavType.StringType },
                         navArgument(Constants.CATEGORY_IMAGE_URL) { type = NavType.StringType }
                     )
-                ) { backStackEntry ->
-                    val viewModel = remember(backStackEntry, appContainer) {
-                        RecipesViewModelFactory(
-                            savedStateHandle = backStackEntry.savedStateHandle,
-                            repository = appContainer.recipesRepository
-                        ).create()
-                    }
-
+                ) {
                     RecipesScreen(
-                        viewModel = viewModel,
+                        viewModel = hiltViewModel(),
                         onRecipeClick = { recipeId ->
                             navController.navigate(Destination.RecipeDetails.createRoute(recipeId))
                         }
@@ -153,16 +132,8 @@ private fun AppNavHost(
                     arguments = listOf(
                         navArgument(Destination.RecipeDetails.PARAM_RECIPE_ID) { type = NavType.IntType }
                     )
-                ) { backStackEntry ->
-                    val viewModel = remember(backStackEntry, appContainer) {
-                        RecipeDetailsViewModelFactory(
-                            application = application,
-                            savedStateHandle = backStackEntry.savedStateHandle,
-                            repository = appContainer.recipesRepository
-                        ).create()
-                    }
-
-                    RecipeDetailsScreen(viewModel = viewModel)
+                ) {
+                    RecipeDetailsScreen(viewModel = hiltViewModel())
                 }
             }
 }
