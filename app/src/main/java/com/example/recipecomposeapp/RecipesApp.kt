@@ -1,6 +1,5 @@
 package com.example.recipecomposeapp
 
-import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -15,19 +14,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.recipecomposeapp.core.network.NetworkConfig
+import com.example.recipecomposeapp.app.di.FavoritesViewModelFactory
+import com.example.recipecomposeapp.app.di.RecipeApplication
+import com.example.recipecomposeapp.app.di.RecipeDetailsViewModelFactory
+import com.example.recipecomposeapp.app.di.RecipesViewModelFactory
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
-import com.example.recipecomposeapp.data.database.RecipesDatabase
-import com.example.recipecomposeapp.data.repository.RecipesRepositoryImpl
-import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
-import com.example.recipecomposeapp.features.details.presentation.RecipeDetailsViewModel
 import com.example.recipecomposeapp.features.details.ui.RecipeDetailsScreen
-import com.example.recipecomposeapp.features.favorites.presentation.FavoritesViewModel
 import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
-import com.example.recipecomposeapp.features.recipes.presentation.RecipesViewModel
 import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.core.utils.Constants
@@ -83,12 +78,8 @@ private fun AppNavHost(
     deepLinkIntent: Intent?
 ) {
     val context = LocalContext.current
-    val database = remember(context) {
-        RecipesDatabase.buildDatabase(context)
-    }
-    val repository = remember(database) {
-        RecipesRepositoryImpl(NetworkConfig.apiService, database)
-    }
+    val application = context.applicationContext as RecipeApplication
+    val appContainer = application.appContainer
 
     LaunchedEffect(deepLinkIntent) {
         val uri = deepLinkIntent?.data ?: return@LaunchedEffect
@@ -104,15 +95,8 @@ private fun AppNavHost(
         navController = navController,
         startDestination = Destination.Categories.route
     ) {
-                composable(route = Destination.Categories.route) { backStackEntry ->
-                    val viewModel: CategoriesViewModel = viewModel(
-                        viewModelStoreOwner = backStackEntry
-                    ) {
-                        CategoriesViewModel(repository)
-                    }
-
+                composable(route = Destination.Categories.route) {
                     CategoriesScreen(
-                        viewModel = viewModel,
                         onCategoryClick = { categoryId, categoryTitle, categoryImageUrl ->
                             navController.navigate(
                                 Destination.Recipes.createRecipesRoute(
@@ -126,13 +110,11 @@ private fun AppNavHost(
                 }
 
                 composable(route = Destination.Favorites.route) { backStackEntry ->
-                    val viewModel: FavoritesViewModel = viewModel(
-                        viewModelStoreOwner = backStackEntry
-                    ) {
-                        FavoritesViewModel(
-                            application = context.applicationContext as Application,
-                            repository = repository
-                        )
+                    val viewModel = remember(backStackEntry, appContainer) {
+                        FavoritesViewModelFactory(
+                            application = application,
+                            repository = appContainer.recipesRepository
+                        ).create()
                     }
 
                     FavoritesScreen(
@@ -151,10 +133,11 @@ private fun AppNavHost(
                         navArgument(Constants.CATEGORY_IMAGE_URL) { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val viewModel: RecipesViewModel = viewModel(
-                        viewModelStoreOwner = backStackEntry
-                    ) {
-                        RecipesViewModel(backStackEntry.savedStateHandle, repository)
+                    val viewModel = remember(backStackEntry, appContainer) {
+                        RecipesViewModelFactory(
+                            savedStateHandle = backStackEntry.savedStateHandle,
+                            repository = appContainer.recipesRepository
+                        ).create()
                     }
 
                     RecipesScreen(
@@ -171,14 +154,12 @@ private fun AppNavHost(
                         navArgument(Destination.RecipeDetails.PARAM_RECIPE_ID) { type = NavType.IntType }
                     )
                 ) { backStackEntry ->
-                    val viewModel: RecipeDetailsViewModel = viewModel(
-                        viewModelStoreOwner = backStackEntry
-                    ) {
-                        RecipeDetailsViewModel(
-                            application = context.applicationContext as Application,
+                    val viewModel = remember(backStackEntry, appContainer) {
+                        RecipeDetailsViewModelFactory(
+                            application = application,
                             savedStateHandle = backStackEntry.savedStateHandle,
-                            repository = repository
-                        )
+                            repository = appContainer.recipesRepository
+                        ).create()
                     }
 
                     RecipeDetailsScreen(viewModel = viewModel)

@@ -10,6 +10,7 @@ import com.example.recipecomposeapp.data.dto.toEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -57,19 +58,8 @@ class RecipesRepositoryImpl(
             recipes.map { recipe -> recipe.toDto() }
         }
 
-    override fun getRecipe(recipeId: Int): Flow<RecipeDto?> {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                apiService.getRecipe(recipeId)
-                Log.d(TAG, "Детали рецепта $recipeId получены из API")
-            } catch (exception: Exception) {
-                Log.e(TAG, "Не удалось обновить рецепт $recipeId", exception)
-            }
-        }
-
-        return recipeDao.getRecipeById(recipeId).map { recipe ->
-            recipe?.toDto()
-        }
+    override fun getRecipe(recipeId: Int): Flow<RecipeDto?> = flow {
+        emit(apiService.getRecipe(recipeId))
     }
 
     private companion object {
