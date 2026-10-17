@@ -7,10 +7,12 @@ import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
 import com.example.recipecomposeapp.data.repository.RecipesRepository
 import com.example.recipecomposeapp.features.favorites.presentation.model.FavoritesUiState
 import com.example.recipecomposeapp.features.recipes.presentation.model.toUiModel
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -21,26 +23,22 @@ class FavoritesViewModel(
 ) : AndroidViewModel(application) {
     private val favoriteDataStoreManager = FavoriteDataStoreManager(application)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<FavoritesUiState> = favoriteDataStoreManager
         .getFavoriteIdsFlow()
-        .map { favoriteIds ->
-            try {
-                FavoritesUiState(
-                    favoriteRecipes = favoriteIds.mapNotNull { favoriteId ->
-                        favoriteId.toIntOrNull()?.let { recipeId ->
-                            repository.getRecipe(recipeId).toUiModel()
-                        }
-                    },
-                    isLoading = false
-                )
-            } catch (exception: CancellationException) {
-                throw exception
-            } catch (exception: Exception) {
-                FavoritesUiState(
-                    isLoading = false,
-                    error = exception.message ?: "Не удалось загрузить избранное"
-                )
+        .flatMapLatest { favoriteIds ->
+            val recipeIds = favoriteIds.mapNotNull { favoriteId -> favoriteId.toIntOrNull() }
+            if (recipeIds.isEmpty()) {
+                flowOf(emptyList())
+            } else {
+                repository.getRecipesByIds(recipeIds)
             }
+        }
+        .map { recipes ->
+            FavoritesUiState(
+                favoriteRecipes = recipes.map { recipe -> recipe.toUiModel() },
+                isLoading = false
+            )
         }
         .onStart { emit(FavoritesUiState(isLoading = true)) }
         .catch { exception ->

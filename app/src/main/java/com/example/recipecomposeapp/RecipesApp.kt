@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipecomposeapp.core.network.NetworkConfig
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
+import com.example.recipecomposeapp.data.database.RecipesDatabase
 import com.example.recipecomposeapp.data.repository.RecipesRepositoryImpl
 import com.example.recipecomposeapp.features.categories.presentation.CategoriesViewModel
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
@@ -81,8 +82,11 @@ private fun AppNavHost(
     deepLinkIntent: Intent?
 ) {
     val context = LocalContext.current
-    val repository = remember {
-        RecipesRepositoryImpl(NetworkConfig.apiService)
+    val database = remember(context) {
+        RecipesDatabase.buildDatabase(context)
+    }
+    val repository = remember(database) {
+        RecipesRepositoryImpl(NetworkConfig.apiService, database)
     }
 
     LaunchedEffect(deepLinkIntent) {
