@@ -10,10 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
 import com.example.recipecomposeapp.features.categories.ui.CategoriesScreen
@@ -22,8 +21,6 @@ import com.example.recipecomposeapp.features.favorites.ui.FavoritesScreen
 import com.example.recipecomposeapp.features.recipes.ui.RecipesScreen
 import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import com.example.recipecomposeapp.core.utils.Constants
-import com.example.recipecomposeapp.core.utils.FavoriteDataStoreManager
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,15 +30,9 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun RecipesApp(deepLinkIntent: Intent? = null) {
-    val context = LocalContext.current
     val navController = rememberNavController()
-    val favoriteDataStoreManager = remember(context) {
-        FavoriteDataStoreManager(context.applicationContext)
-    }
-    val favoriteCountFlow = remember(favoriteDataStoreManager) {
-        favoriteDataStoreManager.getFavoriteCountFlow()
-    }
-    val favoriteCount by favoriteCountFlow.collectAsState(initial = 0)
+    val viewModel: RecipesAppViewModel = hiltViewModel()
+    val favoriteCount by viewModel.favoriteCount.collectAsState()
 
     Scaffold(
         bottomBar = {
