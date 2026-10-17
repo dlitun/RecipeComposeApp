@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipecomposeapp.core.network.NetworkConfig
 import com.example.recipecomposeapp.core.ui.navigation.BottomNavigation
 import com.example.recipecomposeapp.core.ui.navigation.Destination
@@ -104,7 +105,9 @@ private fun AppNavHost(
         startDestination = Destination.Categories.route
     ) {
                 composable(route = Destination.Categories.route) { backStackEntry ->
-                    val viewModel = remember(backStackEntry, repository) {
+                    val viewModel: CategoriesViewModel = viewModel(
+                        viewModelStoreOwner = backStackEntry
+                    ) {
                         CategoriesViewModel(repository)
                     }
 
@@ -123,7 +126,9 @@ private fun AppNavHost(
                 }
 
                 composable(route = Destination.Favorites.route) { backStackEntry ->
-                    val viewModel = remember(backStackEntry, repository, context) {
+                    val viewModel: FavoritesViewModel = viewModel(
+                        viewModelStoreOwner = backStackEntry
+                    ) {
                         FavoritesViewModel(
                             application = context.applicationContext as Application,
                             repository = repository
@@ -146,7 +151,9 @@ private fun AppNavHost(
                         navArgument(Constants.CATEGORY_IMAGE_URL) { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val viewModel = remember(backStackEntry, repository) {
+                    val viewModel: RecipesViewModel = viewModel(
+                        viewModelStoreOwner = backStackEntry
+                    ) {
                         RecipesViewModel(backStackEntry.savedStateHandle, repository)
                     }
 
@@ -164,7 +171,9 @@ private fun AppNavHost(
                         navArgument(Destination.RecipeDetails.PARAM_RECIPE_ID) { type = NavType.IntType }
                     )
                 ) { backStackEntry ->
-                    val viewModel = remember(backStackEntry, repository, context) {
+                    val viewModel: RecipeDetailsViewModel = viewModel(
+                        viewModelStoreOwner = backStackEntry
+                    ) {
                         RecipeDetailsViewModel(
                             application = context.applicationContext as Application,
                             savedStateHandle = backStackEntry.savedStateHandle,
