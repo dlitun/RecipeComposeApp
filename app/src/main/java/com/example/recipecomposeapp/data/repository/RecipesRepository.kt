@@ -11,5 +11,5 @@ interface RecipesRepository {
 
     fun getRecipesByIds(ids: List<Int>): Flow<List<RecipeDto>>
 
-    suspend fun getRecipe(recipeId: Int): RecipeDto
+    fun getRecipe(recipeId: Int): Flow<RecipeDto?>
 }

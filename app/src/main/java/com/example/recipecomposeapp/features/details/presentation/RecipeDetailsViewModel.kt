@@ -43,27 +43,29 @@ class RecipeDetailsViewModel(
     private var favoriteUpdatesJob: Job? = null
 
     init {
-        loadRecipe(recipeId)
-    }
-
-    private fun loadRecipe(recipeId: Int) {
         viewModelScope.launch {
-            _uiState.update { currentState ->
-                currentState.copy(isLoading = true, error = null)
-            }
-
             try {
-                val recipe = repository.getRecipe(recipeId).toUiModel()
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        recipe = recipe,
-                        isLoading = true,
-                        error = null
-                    )
+                repository.getRecipe(recipeId).collect { recipe ->
+                    if (recipe == null) {
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                recipe = null,
+                                isLoading = true,
+                                error = null
+                            )
+                        }
+                    } else {
+                        val recipeUiModel = recipe.toUiModel()
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                recipe = recipeUiModel,
+                                isLoading = false,
+                                error = null
+                            )
+                        }
+                        observeFavoriteUpdates(recipeUiModel.id)
+                    }
                 }
-
-                observeFavoriteUpdates(recipe.id)
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: Exception) {
