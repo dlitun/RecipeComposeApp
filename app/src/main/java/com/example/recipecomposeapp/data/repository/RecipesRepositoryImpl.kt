@@ -7,14 +7,11 @@ import com.example.recipecomposeapp.data.dto.CategoryDto
 import com.example.recipecomposeapp.data.dto.RecipeDto
 import com.example.recipecomposeapp.data.dto.toDto
 import com.example.recipecomposeapp.data.dto.toEntity
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RecipesRepositoryImpl(
     private val apiService: RecipesApiService,
@@ -60,23 +57,22 @@ class RecipesRepositoryImpl(
             recipes.map { recipe -> recipe.toDto() }
         }
 
-    override suspend fun getRecipe(recipeId: Int): RecipeDto = withContext(Dispatchers.IO) {
-        try {
-            val recipe = apiService.getRecipe(recipeId)
-            val categoryId = recipeDao.getRecipeById(recipeId).first()?.categoryId
-                ?: UNKNOWN_CATEGORY_ID
-            recipeDao.insertRecipes(listOf(recipe.toEntity(categoryId)))
-            recipe
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (exception: Exception) {
-            Log.e(TAG, "Не удалось загрузить рецепт $recipeId", exception)
-            throw exception
+    override fun getRecipe(recipeId: Int): Flow<RecipeDto?> {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                apiService.getRecipe(recipeId)
+                Log.d(TAG, "Детали рецепта $recipeId получены из API")
+            } catch (exception: Exception) {
+                Log.e(TAG, "Не удалось обновить рецепт $recipeId", exception)
+            }
+        }
+
+        return recipeDao.getRecipeById(recipeId).map { recipe ->
+            recipe?.toDto()
         }
     }
 
     private companion object {
         const val TAG = "RecipesRepository"
-        const val UNKNOWN_CATEGORY_ID = -1
     }
 }
