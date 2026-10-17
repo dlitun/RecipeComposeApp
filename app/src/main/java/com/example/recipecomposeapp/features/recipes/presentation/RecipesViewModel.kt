@@ -56,15 +56,14 @@ class RecipesViewModel(
             }
 
             try {
-                val recipes = repository
-                    .getRecipesByCategory(categoryId)
-                    .map { recipe -> recipe.toUiModel() }
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        recipes = recipes,
-                        isLoading = false
-                    )
+                repository.getRecipesByCategory(categoryId).collect { recipes ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            recipes = recipes.map { recipe -> recipe.toUiModel() },
+                            isLoading = false,
+                            error = null
+                        )
+                    }
                 }
             } catch (exception: CancellationException) {
                 throw exception

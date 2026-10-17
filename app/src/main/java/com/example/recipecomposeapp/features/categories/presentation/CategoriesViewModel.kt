@@ -30,13 +30,14 @@ class CategoriesViewModel(
             }
 
             try {
-                val categories = repository.getCategories().map { it.toUiModel() }
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        categories = categories,
-                        isLoading = false
-                    )
+                repository.getCategories().collect { categories ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            categories = categories.map { category -> category.toUiModel() },
+                            isLoading = false,
+                            error = null
+                        )
+                    }
                 }
             } catch (exception: CancellationException) {
                 throw exception
