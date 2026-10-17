@@ -3,6 +3,9 @@ package com.example.recipecomposeapp.data.dto
 import com.example.recipecomposeapp.data.database.converter.Converters
 import com.example.recipecomposeapp.data.database.entity.RecipeEntity
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class RecipeDto(
@@ -13,7 +16,6 @@ data class RecipeDto(
     val imageUrl: String
 )
 
-private const val INGREDIENT_PARTS_SEPARATOR = "|"
 private val converters = Converters()
 
 fun RecipeDto.toEntity(categoryId: Int): RecipeEntity = RecipeEntity(
@@ -21,28 +23,17 @@ fun RecipeDto.toEntity(categoryId: Int): RecipeEntity = RecipeEntity(
     title = title,
     categoryId = categoryId,
     imageUrl = imageUrl,
-    ingredients = converters.fromList(
-        ingredients.map { ingredient ->
-            listOf(
-                ingredient.quantity,
-                ingredient.unitOfMeasure,
-                ingredient.description
-            ).joinToString(INGREDIENT_PARTS_SEPARATOR)
-        }
-    ),
+    ingredients = Json.encodeToString(ingredients),
     method = converters.fromList(method)
 )
 
 fun RecipeEntity.toDto(): RecipeDto = RecipeDto(
     id = id,
     title = title,
-    ingredients = converters.fromString(ingredients).map { ingredient ->
-        val parts = ingredient.split(INGREDIENT_PARTS_SEPARATOR, limit = 3)
-        IngredientDto(
-            quantity = parts.getOrElse(0) { "" },
-            unitOfMeasure = parts.getOrElse(1) { "" },
-            description = parts.getOrElse(2) { "" }
-        )
+    ingredients = if (ingredients.isEmpty()) {
+        emptyList()
+    } else {
+        Json.decodeFromString(ingredients)
     },
     method = converters.fromString(method),
     imageUrl = imageUrl

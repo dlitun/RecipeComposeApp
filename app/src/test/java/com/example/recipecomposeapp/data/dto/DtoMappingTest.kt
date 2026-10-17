@@ -25,8 +25,8 @@ class DtoMappingTest {
             ingredients = listOf(
                 IngredientDto(
                     quantity = "2",
-                    unitOfMeasure = "шт",
-                    description = "помидоры"
+                    unitOfMeasure = "г|мл",
+                    description = "помидоры ||| \"черри\""
                 ),
                 IngredientDto(
                     quantity = "по вкусу",
@@ -34,7 +34,10 @@ class DtoMappingTest {
                     description = "соль"
                 )
             ),
-            method = listOf("Нарезать овощи", "Сварить суп"),
+            method = listOf(
+                "Нарезать овощи | крупно",
+                "Сварить суп ||| затем добавить \"зелень\"\nи перемешать"
+            ),
             imageUrl = "tomato-soup.png"
         )
 

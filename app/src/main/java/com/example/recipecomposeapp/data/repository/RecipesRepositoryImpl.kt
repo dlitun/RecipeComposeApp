@@ -11,6 +11,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,7 +62,11 @@ class RecipesRepositoryImpl(
 
     override suspend fun getRecipe(recipeId: Int): RecipeDto = withContext(Dispatchers.IO) {
         try {
-            apiService.getRecipe(recipeId)
+            val recipe = apiService.getRecipe(recipeId)
+            val categoryId = recipeDao.getRecipeById(recipeId).first()?.categoryId
+                ?: UNKNOWN_CATEGORY_ID
+            recipeDao.insertRecipes(listOf(recipe.toEntity(categoryId)))
+            recipe
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: Exception) {
@@ -72,5 +77,6 @@ class RecipesRepositoryImpl(
 
     private companion object {
         const val TAG = "RecipesRepository"
+        const val UNKNOWN_CATEGORY_ID = -1
     }
 }
