@@ -1,25 +1,28 @@
 package com.example.recipecomposeapp.data.dto
 
 import com.example.recipecomposeapp.features.categories.presentation.model.toUiModel
+import com.example.recipecomposeapp.fixtures.CategoryTestFixtures
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CategoryDtoTest {
 
     @Test
-    fun `converts DTO to UI model`() {
-        // Arrange
-        val dto = CategoryDto(
-            id = 1,
-            title = "Завтраки",
-            description = "Утренние блюда",
-            imageUrl = "breakfast.jpg"
-        )
+    fun `mapper maps empty title correctly`() {
+        val dto = CategoryTestFixtures.createCategoryDto(title = "")
 
-        // Act
         val result = dto.toUiModel()
 
-        // Assert
-        assertEquals("Завтраки", result.title)
+        assertEquals("", result.title)
+    }
+
+    @Test
+    fun `mapper preserves very long description`() {
+        val longDescription = "Очень длинное описание. ".repeat(500)
+        val dto = CategoryTestFixtures.createCategoryDto(description = longDescription)
+
+        val result = dto.toUiModel()
+
+        assertEquals(longDescription, result.description)
     }
 }
