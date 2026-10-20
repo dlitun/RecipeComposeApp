@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.recipecomposeapp.core.ui.theme.RecipesAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,7 +23,9 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            RecipesApp(deepLinkIntent = deepLinkIntent)
+            RecipesAppTheme {
+                RecipesApp(deepLinkIntent = deepLinkIntent)
+            }
         }
     }
 

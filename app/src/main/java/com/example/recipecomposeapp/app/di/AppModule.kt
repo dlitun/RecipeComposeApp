@@ -59,5 +59,5 @@ object AppModule {
         @ApplicationContext context: Context
     ): RecipesDatabase = RecipesDatabase.buildDatabase(context)
 
-    private const val BASE_URL = "https://recipes.androidsprint.ru/api/"
+    private const val BASE_URL = "https://recipes.aisprints.ru/api/"
 }
