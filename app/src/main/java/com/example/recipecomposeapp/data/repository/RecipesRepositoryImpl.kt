@@ -15,15 +15,26 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class RecipesRepositoryImpl @Inject constructor(
+class RecipesRepositoryImpl internal constructor(
     private val apiService: RecipesApiService,
-    database: RecipesDatabase
+    database: RecipesDatabase,
+    private val refreshScope: CoroutineScope
 ) : RecipesRepository {
     private val categoryDao = database.categoryDao()
     private val recipeDao = database.recipeDao()
 
+    @Inject
+    constructor(
+        apiService: RecipesApiService,
+        database: RecipesDatabase
+    ) : this(
+        apiService = apiService,
+        database = database,
+        refreshScope = CoroutineScope(Dispatchers.IO)
+    )
+
     override fun getCategories(): Flow<List<CategoryDto>> {
-        CoroutineScope(Dispatchers.IO).launch {
+        refreshScope.launch {
             try {
                 val categories = apiService.getCategories()
                 categoryDao.insertCategories(categories.map { category -> category.toEntity() })
@@ -38,7 +49,7 @@ class RecipesRepositoryImpl @Inject constructor(
     }
 
     override fun getRecipesByCategory(categoryId: Int): Flow<List<RecipeDto>> {
-        CoroutineScope(Dispatchers.IO).launch {
+        refreshScope.launch {
             try {
                 val recipes = apiService.getRecipesByCategory(categoryId)
                 recipeDao.insertRecipes(

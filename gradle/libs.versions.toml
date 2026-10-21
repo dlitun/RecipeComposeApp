@@ -56,6 +56,9 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpLoggingInterceptor" }
+room-testing = { module = "androidx.room3:room3-testing", version.ref = "room" }
+hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
