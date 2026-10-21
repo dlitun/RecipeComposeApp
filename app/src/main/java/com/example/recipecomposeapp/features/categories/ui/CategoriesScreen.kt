@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.recipecomposeapp.R
@@ -46,7 +45,7 @@ fun CategoriesScreen(
 }
 
 @Composable
-fun CategoriesContent(
+private fun CategoriesContent(
     uiState: CategoriesUiState,
     onCategoryClick: (Int, String, String) -> Unit,
     modifier: Modifier = Modifier
@@ -69,9 +68,7 @@ fun CategoriesContent(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.testTag("loading_indicator")
-                    )
+                    CircularProgressIndicator()
                 }
             }
 
@@ -84,7 +81,6 @@ fun CategoriesContent(
                 ) {
                     Text(
                         text = uiState.error.orEmpty(),
-                        modifier = Modifier.testTag("error_message"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )

@@ -17,7 +17,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
@@ -44,7 +43,7 @@ fun RecipesScreen(
 }
 
 @Composable
-fun RecipesContent(
+private fun RecipesContent(
     uiState: RecipesUiState,
     onRecipeClick: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -82,9 +81,7 @@ private fun LoadingState() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(
-            modifier = Modifier.testTag("loading_indicator")
-        )
+        CircularProgressIndicator()
     }
 }
 
@@ -98,7 +95,6 @@ private fun ErrorState(message: String) {
     ) {
         Text(
             text = message,
-            modifier = Modifier.testTag("error_message"),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error
         )
@@ -110,7 +106,6 @@ private fun EmptyState() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .testTag("empty_state")
             .padding(Dimens.Space16),
         contentAlignment = Alignment.Center
     ) {
