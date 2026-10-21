@@ -45,7 +45,7 @@ fun RecipeItem(
             )
 
             Text(
-                text = recipe.title,
+                text = recipe.title.uppercase(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
