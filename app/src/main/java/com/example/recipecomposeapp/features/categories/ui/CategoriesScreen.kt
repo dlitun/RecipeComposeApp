@@ -84,6 +84,7 @@ fun CategoriesContent(
                 ) {
                     Text(
                         text = uiState.error.orEmpty(),
+                        modifier = Modifier.testTag("error_message"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )
