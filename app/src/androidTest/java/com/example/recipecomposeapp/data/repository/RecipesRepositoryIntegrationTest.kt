@@ -12,7 +12,9 @@ import com.example.recipecomposeapp.data.dto.CategoryDto
 import com.example.recipecomposeapp.data.dto.RecipeDto
 import java.io.IOException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -26,7 +28,6 @@ class RecipesRepositoryIntegrationTest {
 
     private lateinit var database: RecipesDatabase
     private lateinit var apiService: TestRecipesApiService
-    private lateinit var repository: RecipesRepositoryImpl
 
     @Before
     fun setup() {
@@ -35,7 +36,6 @@ class RecipesRepositoryIntegrationTest {
             .allowMainThreadQueries()
             .build()
         apiService = TestRecipesApiService()
-        repository = RecipesRepositoryImpl(apiService = apiService, database = database)
     }
 
     @After
@@ -45,6 +45,11 @@ class RecipesRepositoryIntegrationTest {
 
     @Test
     fun savesDataToCacheAfterSuccessfulApiCall() = runTest {
+        val repository = RecipesRepositoryImpl(
+            apiService = apiService,
+            database = database,
+            refreshScope = this
+        )
         val apiCategories = listOf(
             CategoryDto(
                 id = 1,
@@ -69,24 +74,33 @@ class RecipesRepositoryIntegrationTest {
     }
 
     @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun returnsCachedDataWhenApiFails() = runTest {
-        database.categoryDao().insertCategories(
-            listOf(
-                CategoryEntity(
-                    id = 2,
-                    name = "Супы",
-                    description = "Горячие блюда",
-                    imageUrl = "soups.jpg"
-                )
+        val initialCache = listOf(
+            CategoryEntity(
+                id = 2,
+                name = "Супы",
+                description = "Горячие блюда",
+                imageUrl = "soups.jpg"
             )
         )
-        apiService.categoriesResult.complete(Result.failure(IOException("Network unavailable")))
+        database.categoryDao().insertCategories(initialCache)
+        val repository = RecipesRepositoryImpl(
+            apiService = apiService,
+            database = database,
+            refreshScope = this
+        )
 
         repository.getCategories().test {
             val cached = awaitItem()
-
             assertEquals(1, cached.size)
             assertEquals("Супы", cached.single().title)
+
+            apiService.categoriesResult.complete(Result.failure(IOException("Network unavailable")))
+            advanceUntilIdle()
+
+            val cacheAfterFailedRefresh = database.categoryDao().getAllCategories().first()
+            assertEquals(initialCache, cacheAfterFailedRefresh)
             cancelAndIgnoreRemainingEvents()
         }
     }

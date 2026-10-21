@@ -8,13 +8,15 @@ import app.cash.turbine.test
 import com.example.recipecomposeapp.core.network.api.RecipesApiService
 import com.example.recipecomposeapp.data.database.RecipesDatabase
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,6 +30,7 @@ class CompleteDataFlowTest {
 
     private lateinit var database: RecipesDatabase
     private lateinit var mockWebServer: MockWebServer
+    private lateinit var responseGate: CountDownLatch
 
     @Before
     fun setup() {
@@ -36,25 +39,29 @@ class CompleteDataFlowTest {
             .allowMainThreadQueries()
             .build()
         mockWebServer = MockWebServer().also { it.start() }
+        responseGate = CountDownLatch(1)
     }
 
     @After
     fun tearDown() {
+        responseGate.countDown()
         database.close()
         mockWebServer.shutdown()
     }
 
     @Test
     fun categoriesAreLoadedFromApiAndStoredInCache() = runTest {
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setHeader("Content-Type", "application/json")
-                .setBodyDelay(100, TimeUnit.MILLISECONDS)
-                .setBody(
-                    """[{"id":1,"title":"Завтраки","description":"Лёгкие блюда","imageUrl":"breakfast.jpg"}]"""
-                )
-        )
+        mockWebServer.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse {
+                responseGate.await()
+                return MockResponse()
+                    .setResponseCode(200)
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(
+                        """[{"id":1,"title":"Завтраки","description":"Лёгкие блюда","imageUrl":"breakfast.jpg"}]"""
+                    )
+            }
+        }
         val json = Json {
             ignoreUnknownKeys = true
             coerceInputValues = true
@@ -68,6 +75,7 @@ class CompleteDataFlowTest {
 
         repository.getCategories().test {
             assertTrue(awaitItem().isEmpty())
+            responseGate.countDown()
 
             val loaded = awaitItem()
             assertEquals("Завтраки", loaded.single().title)
