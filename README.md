@@ -1,5 +1,7 @@
 # RecipeComposeApp
 
+[![Android CI](https://github.com/dlitun/RecipeComposeApp/actions/workflows/ci.yml/badge.svg)](https://github.com/dlitun/RecipeComposeApp/actions/workflows/ci.yml)
+
 **RecipeComposeApp** — учебное Android-приложение с кулинарными рецептами, полностью разработанное на **Kotlin** с использованием **Jetpack Compose**.  
 Проект создан для изучения современной Android-разработки, декларативного интерфейса, навигации, управления состоянием и разделения приложения на слои.
 
