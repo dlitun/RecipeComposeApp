@@ -55,7 +55,11 @@ fun RecipesContent(
         error = painterResource(id = R.drawable.placeholder_header)
     )
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .testTag("recipes_screen")
+    ) {
         ScreenHeader(
             painter = categoryImagePainter,
             contentDescription = "Изображение категории ${uiState.categoryTitle}",

@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +29,9 @@ fun CategoryItem(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("category_item"),
         shape = RoundedCornerShape(Dimens.CornerLarge),
         elevation = CardDefaults.cardElevation(defaultElevation = Dimens.ElevationMedium),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
