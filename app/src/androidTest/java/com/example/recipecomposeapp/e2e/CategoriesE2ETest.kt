@@ -1,8 +1,6 @@
 package com.example.recipecomposeapp.e2e
 
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.recipecomposeapp.MainActivity
 import com.example.recipecomposeapp.e2e.screen.CategoriesComposeScreen
@@ -43,9 +41,10 @@ class CategoriesE2ETest : TestCase(
 
         step("Нажать на первую категорию") {
             onComposeScreen<CategoriesComposeScreen>(composeTestRule) {
-                categoryItems[0]
-                    .assertIsDisplayed()
-                    .performClick()
+                categoryItem {
+                    assertIsDisplayed()
+                    performClick()
+                }
             }
         }
 
