@@ -54,7 +54,9 @@ fun CategoriesContent(
     val gridState = rememberLazyGridState()
 
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .testTag("categories_screen")
     ) {
         ScreenHeader(
             painter = painterResource(id = R.drawable.placeholder_header),
@@ -95,7 +97,9 @@ fun CategoriesContent(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     state = gridState,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("categories_grid"),
                     horizontalArrangement = Arrangement.spacedBy(Dimens.Space8),
                     verticalArrangement = Arrangement.spacedBy(Dimens.Space8),
                     contentPadding = PaddingValues(Dimens.Space16)
